@@ -5,7 +5,7 @@ from utils.document_reader import DocumentProcessor
 from ai.gemini_provider import GeminiProvider
 from ai.master_prompts import EXAM_SYSTEM_PROMPT
 from engines.exam_engine import ExamEngine
-
+from exporters.word_exam import ExamWordExporter
 def render_exam_ui(is_ai_enabled: bool = True):
     # ---------------------------------------------------------
     # CSS TÙY CHỈNH CHO NÚT BẤM
@@ -148,5 +148,16 @@ def render_exam_ui(is_ai_enabled: bool = True):
     # ---------------------------------------------------------
     if 'exam_data_clean' in st.session_state:
         st.markdown("### 📊 Kết quả phân tích từ Engine")
-        with st.expander("👀 Xem trước Cấu trúc Dữ liệu (Sẵn sàng xuất Word)", expanded=True):
+        
+        # Nút xuất file Word
+        word_bytes = ExamWordExporter.export_exam_and_matrix(st.session_state['exam_data_clean'])
+        st.download_button(
+            label="📥 TẢI XUỐNG ĐỀ & MA TRẬN (.DOCX)",
+            data=word_bytes,
+            file_name=f"De_Kiem_Tra_{mon_hoc}.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            type="primary"
+        )
+        
+        with st.expander("👀 Xem trước Cấu trúc Dữ liệu (Sẵn sàng xuất Word)", expanded=False):
             st.json(st.session_state['exam_data_clean'])
