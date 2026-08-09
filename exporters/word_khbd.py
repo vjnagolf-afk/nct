@@ -3,7 +3,7 @@
 ============================================================
 MODULE: export/export_word.py
 Nhiệm vụ: Bộ điều phối trung tâm kết xuất Markdown / AI Generated Content 
-thành file Word (.docx) chuẩn 5512 (Bản Kỹ sư trưởng tối ưu toàn diện).
+thành file Word (.docx) chuẩn 5512 (Bản Kỹ sư trưởng tối ưu chống lỗi toán học).
 ============================================================
 """
 
@@ -66,23 +66,23 @@ class ScienceNormalizer:
         r'\times': '×', r'\div': '÷', r'\triangle': '△', r'\angle': '∠', 
         r'\rightarrow': '→', r'\Rightarrow': '⇒', r'\approx': '≈',
         r'\alpha': 'α', r'\beta': 'β', r'\gamma': 'γ', r'\pi': 'π', 
-        r'\sum': '∑', r'\int': '∫', r'\sqrt': '√'
+        r'\sum': '∑', r'\int': '∫'
     }
 
     @classmethod
     def normalize(cls, text: str) -> str:
         if not text: 
             return ""
-        # Làm sạch ký hiệu LaTeX thô để chuyển về dạng văn bản Unicode rõ nét không bị cắt cụt
+        
         text = str(text).replace('$', '').replace(r'\(', '').replace(r'\)', '').strip()
         
-        # Xử lý căn thức toàn diện tránh mất nét
-        text = re.sub(r'\\sqrt\s*\{([\s\S]+?)\}', r'√(\1)', text)
+        # Xử lý căn thức khoa học rõ ràng tuyệt đối không bị cụt nét
+        text = re.sub(r'\\sqrt\s*\{([\s\S]+?)\}', r'√( \1 )', text)
         text = re.sub(r'\\sqrt\s*([a-zA-Z0-9]+)', r'√\1', text)
         
         # Xử lý phân số
         while r'\frac{' in text:
-            text = re.sub(r'\\frac\{([\s\S]+?)\}\{([\s\S]+?)\}', r'((\1)/(\2))', text)
+            text = re.sub(r'\\frac\{([\s\S]+?)\}\{([\s\S]+?)\}', r'( \1 / \2 )', text)
             
         # Dịch chuyển chỉ số trên, chỉ số dưới
         text = re.sub(r'([A-Z][a-z]?|\))(\d+)', lambda m: m.group(1) + m.group(2).translate(cls.SUB), text)
@@ -197,7 +197,6 @@ class WordExportEngine:
         ns.font.name, ns.font.size = 'Times New Roman', Pt(13)
         ns.paragraph_format.space_after = Pt(6)
 
-        # Sử dụng MarkdownTokenizer nếu có sẵn, nếu không sẽ gọi fallback
         if MarkdownTokenizer and hasattr(MarkdownTokenizer, 'parse'):
             try:
                 ast_nodes = MarkdownTokenizer.parse(markdown_text)
@@ -301,18 +300,10 @@ class WordExportEngine:
         return bio.getvalue()
 
     @classmethod
-    def export_to_word(cls, data_cache: Dict[str, Any]) -> bytes:
-        metadata = {}
-        if isinstance(data_cache, dict):
-            metadata = data_cache.copy()
-            md_text = metadata.get("ai_generated_content", "")
-        else:
-            md_text = str(data_cache)
-            
-        if "current_source_metadata" in st.session_state:
-            metadata["pages"] = st.session_state["current_source_metadata"].get("pages", [])
-            
-        return cls.convert_markdown_to_docx_bytes(md_text, metadata=metadata)
+    export_to_word = lambda cls, data_cache: cls.convert_markdown_to_docx_bytes(
+        data_cache.get("ai_generated_content", "") if isinstance(data_cache, dict) else str(data_cache),
+        metadata=data_cache if isinstance(data_cache, dict) else {}
+    )
 
 
 def export_word(markdown_text_or_cache) -> bytes:
