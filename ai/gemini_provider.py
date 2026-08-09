@@ -2,8 +2,7 @@
 """
 ============================================================
 MODULE: ai/gemini_provider.py
-Nhiệm vụ: Cung cấp giao tiếp chuẩn với Gemini API.
-ĐÃ VÁ LỖI: Sửa triệt để lỗi 401 ACCESS_TOKEN_TYPE_UNSUPPORTED cho API Key dạng AQ...
+Nhiệm vụ: Giao tiếp với Gemini API, tương thích hoàn toàn API Key AQ...
 ============================================================
 """
 
@@ -23,19 +22,18 @@ class GeminiProvider(BaseAIProvider):
     def generate_json(self, prompt: str, system_prompt: str = "") -> str:
         try:
             generation_config = {
-                "temperature": 0.1,  # Đảm bảo AI bám sát dữ liệu gốc, trích xuất chuẩn bảng biểu
+                "temperature": 0.1,  # Đặt mức thấp nhất để AI tập trung trích xuất chính xác tài liệu gốc
                 "response_mime_type": "application/json"
             }
             
-            # GIẢI PHÁP VÁ LỖI 401: Ép cấu hình client_options bằng API Key thủ công cho từng phiên gọi
-            # Điều này ngăn chặn việc SDK tự động nhận diện nhầm chuỗi 'AQ...' thành Google Cloud Access Token.
+            # ĐÃ SỬA: Cấu hình client_options thông qua genai.configure() thay vì truyền vào GenerativeModel
             c_options = client_options_lib.ClientOptions(api_key=self.api_key)
+            genai.configure(client_options=c_options)
             
             model = genai.GenerativeModel(
                 model_name=self.model_name,
                 system_instruction=system_prompt,
-                generation_config=generation_config,
-                client_options=c_options  # Truyền trực tiếp tùy chọn tài khoản vào đây
+                generation_config=generation_config
             )
             
             response = model.generate_content(prompt)
@@ -47,11 +45,11 @@ class GeminiProvider(BaseAIProvider):
     def generate_text(self, prompt: str, system_prompt: str = "") -> str:
         try:
             c_options = client_options_lib.ClientOptions(api_key=self.api_key)
+            genai.configure(client_options=c_options)
             
             model = genai.GenerativeModel(
                 model_name=self.model_name,
-                system_instruction=system_prompt,
-                client_options=c_options
+                system_instruction=system_prompt
             )
             response = model.generate_content(prompt)
             return response.text
