@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+============================================================
+MODULE: modules/ui_khbd.py
+Nhiệm vụ: Giao diện Xây dựng Kế hoạch bài dạy chuẩn 5512 & TT18
+(Bản Kỹ sư trưởng tối ưu toàn diện: Hỗ trợ đa tiết, trích xuất sâu SGK)
+============================================================
+"""
+
 import streamlit as st
 import time
 from utils.document_reader import DocumentProcessor
@@ -5,8 +14,7 @@ from utils.nls_constants import KHUNG_NLS_GV, KHUNG_NLS_HS
 from ai.gemini_provider import GeminiProvider
 from ai.openai_provider import OpenAIProvider
 from ai.master_prompts import KHBD_SYSTEM_PROMPT
-from engines.khbd_engine import KhbdEngine
-from exporters.word_khbd import KhbdWordExporter
+from export.export_word import export_word
 
 def init_session_state():
     if "khbd_nls_list" not in st.session_state:
@@ -23,9 +31,10 @@ def add_nls():
     muc_do = st.session_state.get("khbd_nls_muc_do", "")
     
     try:
-        data_tp = get_nls_framework(st.session_state.get("khbd_loai_khung_nls")).get(linh_vuc, {}).get(thanh_phan, {})
+        framework = get_nls_framework(st.session_state.get("khbd_loai_khung_nls", "Giáo viên (Thông tư 18)"))
+        data_tp = framework.get(linh_vuc, {}).get(thanh_phan, {})
         noi_dung = data_tp.get(muc_do, "") if isinstance(data_tp, dict) else data_tp
-    except:
+    except Exception:
         noi_dung = ""
 
     if noi_dung: 
@@ -42,20 +51,20 @@ def render_khbd_ui(is_ai_enabled: bool = True):
     init_session_state()
 
     st.title("📘 XÂY DỰNG KẾ HOẠCH BÀI DẠY (CHUẨN 5512 & TT18)")
-    st.caption("Ứng dụng sức mạnh AI tạo sinh (JSON Architecture) để soạn giáo án bài bản, chống lỗi hoàn hảo.")
+    st.caption("Ứng dụng sức mạnh AI tạo sinh để soạn giáo án chi tiết, trích xuất sâu SGK, bảng biểu và hình ảnh.")
     st.divider()
     
     # 1. THÔNG TIN BÀI DẠY
     st.subheader("🎛️ Thông tin bài dạy")
     col1, col2, col3 = st.columns([1.5, 1.5, 1])
     with col1:
-        khoi_lop = st.selectbox("Khối lớp", ["Lớp 6", "Lớp 7", "Lớp 8", "Lớp 9", "Lớp 10", "Lớp 11", "Lớp 12"])
+        khoi_lop = st.selectbox("Khối lớp", ["Lớp 6", "Lớp 7", "Lớp 8", "Lớp 9", "Lớp 10", "Lớp 11", "Lớp 12"], index=3)
     with col2:
-        mon_hoc = st.selectbox("Môn học", ["Toán", "Ngữ văn", "Tiếng Anh", "Khoa học tự nhiên", "Vật lí", "Hóa học", "Sinh học", "Lịch sử và Địa lí", "Tin học", "Công nghệ"])
+        mon_hoc = st.selectbox("Môn học", ["Toán", "Ngữ văn", "Tiếng Anh", "Khoa học tự nhiên", "Vật lí", "Hóa học", "Sinh học", "Lịch sử và Địa lí", "Tin học", "Công nghệ"], index=0)
     with col3:
-        so_tiet = st.number_input("Số tiết", min_value=1, max_value=15, value=1)
+        so_tiet = st.number_input("Số tiết", min_value=1, max_value=15, value=2)
         
-    ten_bai = st.text_input("Tên bài học", placeholder="Nhập chính xác tên bài (VD: Định luật Ôm, Thơ Đường luật...)")
+    ten_bai = st.text_input("Tên bài học", placeholder="Nhập chính xác tên bài (VD: Căn bậc 2 và căn thức bậc 2...)")
 
     # 2. CẤU HÌNH AI & CHẾ ĐỘ
     st.subheader("✨ Cấu hình AI & Chế độ")
@@ -64,22 +73,20 @@ def render_khbd_ui(is_ai_enabled: bool = True):
         mode = st.radio("Chế độ soạn:", ["tu_dong", "chinh_sua"], format_func=lambda x: "⚡ Tự động soạn từ SGK" if x == "tu_dong" else "📄 Chỉnh sửa giáo án gốc", horizontal=True)
     with c_md2:
         model_name = st.selectbox("Mô hình AI (Định tuyến thông minh)", [
-            "Gemini 1.5 Flash (Tốc độ nhanh)", 
-            "Gemini 1.5 Pro (Phân tích chuyên sâu)",
+            "GPT-4o (Cao cấp, logic xuất sắc)",
             "GPT-4o Mini (Ổn định, tiết kiệm)",
-            "GPT-4o (Cao cấp, logic xuất sắc)"
+            "Gemini 1.5 Pro (Phân tích chuyên sâu)",
+            "Gemini 1.5 Flash (Tốc độ nhanh)"
         ])
 
     # 3. TÀI LIỆU ĐẦU VÀO
     st.subheader("📤 Tài liệu đầu vào")
     if mode == "chinh_sua":
-        st.info("💡 Chế độ Chỉnh sửa: Hệ thống cần KHBD cũ để làm gốc, và SGK (Tùy chọn) để đối chiếu.")
         col_up1, col_up2 = st.columns(2)
         file_ga = col_up1.file_uploader("📂 Tải lên KHBD cũ (.docx, .pdf)", type=["docx", "pdf"], accept_multiple_files=True)
-        file_sgk = col_up2.file_uploader("📂 Tải lên SGK (.docx, .pdf)", type=["pdf", "docx"], accept_multiple_files=True)
+        file_sgk = col_up2.file_uploader("📂 Tải lên SGK / Tài liệu (.docx, .pdf)", type=["pdf", "docx"], accept_multiple_files=True)
     else:
-        st.info("💡 Chế độ Tự động: Hệ thống BẮT BUỘC cần Sách giáo khoa hoặc Đề cương để lấy kiến thức.")
-        file_sgk = st.file_uploader("📂 Tải lên SGK / Đề cương (.docx, .pdf)", type=["pdf", "docx"], accept_multiple_files=True)
+        file_sgk = st.file_uploader("📂 Tải lên SGK / Đề cương / Tài liệu gốc (.docx, .pdf)", type=["pdf", "docx"], accept_multiple_files=True)
         file_ga = []
 
     # 4. TÍCH HỢP CHUYÊN SÂU
@@ -123,18 +130,21 @@ def render_khbd_ui(is_ai_enabled: bool = True):
             st.warning("⚠️ Vui lòng nhập Tên bài học.")
             return
             
-        with st.spinner(f"⏳ Đang định tuyến tới [{model_name}] để phân tích JSON KHBD..."):
+        with st.spinner(f"⏳ Đang định tuyến tới [{model_name}] để phân tích sâu SGK và soạn KHBD {so_tiet} tiết..."):
             try:
                 noi_dung_chinh = "\n".join([DocumentProcessor.process_uploaded_file(f) for f in file_sgk]) if file_sgk else ""
                 noi_dung_ga = "\n".join([DocumentProcessor.process_uploaded_file(f) for f in file_ga]) if file_ga else ""
                 
-                yeu_cau = f"- Soạn KHBD {so_tiet} tiết môn {mon_hoc} {khoi_lop} bài: {ten_bai}.\n"
+                yeu_cau = f"- Soạn KHBD chuẩn 5512 CỰC KỲ CHI TIẾT với thời lượng chính xác {so_tiet} tiết cho môn {mon_hoc} {khoi_lop}, bài: {ten_bai}.\n"
+                yeu_cau += f"- Bắt buộc phân rã chi tiết nội dung học tập rạch ròi theo từng tiết học (Tiết 1, Tiết 2,...).\n"
+                yeu_cau += f"- Trích xuất cụ thể các định nghĩa, ví dụ, bài tập, câu hỏi, dữ liệu bảng biểu và hình ảnh có trong tài liệu SGK dưới đây.\n"
+                
                 if mode == "chinh_sua": yeu_cau += "- Nâng cấp dựa trên KHBD cũ, tham khảo thêm SGK mới.\n"
                 if tich_hop_ai: yeu_cau += "- Có lồng ghép hoạt động sử dụng AI.\n"
                 if tich_hop_hoa_nhap and nhu_cau_hoa_nhap: yeu_cau += f"- Lưu ý phương pháp cho HS khuyết tật: {', '.join(nhu_cau_hoa_nhap)}.\n"
                 if tich_hop_nls and st.session_state.khbd_nls_list: yeu_cau += f"- Tích hợp Năng lực số:\n{format_nls()}\n"
                 
-                prompt_hien_tai = f"{yeu_cau}\n\nSGK/TÀI LIỆU:\n{noi_dung_chinh}\n\nGIÁO ÁN CŨ:\n{noi_dung_ga}"
+                prompt_hien_tai = f"{yeu_cau}\n\nSGK / TÀI LIỆU NGUỒN:\n{noi_dung_chinh}\n\nGIÁO ÁN CŨ (NẾU CÓ):\n{noi_dung_ga}"
 
                 is_openai = "GPT" in model_name
                 api_key = st.secrets.get("OPENAI_API_KEY" if is_openai else "GEMINI_API_KEY", "")
@@ -143,79 +153,52 @@ def render_khbd_ui(is_ai_enabled: bool = True):
                     st.error(f"❌ Không tìm thấy API Key cho mô hình {model_name}.")
                     return
                 
-                provider = OpenAIProvider(api_key, model_name="gpt-4o" if "4o" in model_name else "gpt-4o-mini") if is_openai else GeminiProvider(api_key, model_name="gemini-1.5-pro" if "Pro" in model_name else "gemini-1.5-flash")
-                raw_json = provider.generate_json(prompt=prompt_hien_tai, system_prompt=KHBD_SYSTEM_PROMPT)
-                thong_tin_dong_goi = KhbdEngine.generate_export_data(raw_json)
-                
-                st.session_state['khbd_data_clean'] = thong_tin_dong_goi
-                st.success(f"🎉 Engine đã xử lý thành công qua luồng {model_name}!")
+                if is_openai:
+                    provider = OpenAIProvider(api_key, model_name="gpt-4o" if "4o" in model_name and "Mini" not in model_name else "gpt-4o-mini")
+                else:
+                    provider = GeminiProvider(api_key, model_name="gemini-1.5-pro" if "Pro" in model_name else "gemini-1.5-flash")
+                    
+                raw_markdown = provider.generate_json(prompt=prompt_hien_tai, system_prompt=KHBD_SYSTEM_PROMPT)
+
+                st.session_state['current_khbd_data'] = {
+                    "is_khbd": True,
+                    "title": ten_bai,
+                    "mon": mon_hoc,
+                    "lop": khoi_lop,
+                    "so_tiet": so_tiet,
+                    "ai_generated_content": raw_markdown
+                }
+                st.success(f"🎉 Đã soạn thành công KHBD {so_tiet} tiết qua luồng {model_name}!")
+                st.rerun()
                 
             except Exception as e:
                 st.error(f"❌ Lỗi hệ thống: {str(e)}")
 
-   # 6. HIỂN THỊ KẾT QUẢ & XUẤT WORD TRỰC QUAN
-    if 'khbd_data_clean' in st.session_state:
-        khbd_data = st.session_state['khbd_data_clean']
-        st.markdown("### 📊 Kết quả Kế hoạch bài dạy chi tiết (Chuẩn 5512)")
+    # 6. HIỂN THỊ KẾT QUẢ & XUẤT WORD
+    khbd_cache = st.session_state.get('current_khbd_data')
+    if khbd_cache and khbd_cache.get('is_khbd'):
+        st.markdown("---")
+        st.markdown(f"### 📊 Kết quả Kế hoạch bài dạy: {khbd_cache['title'].upper()} ({khbd_cache['so_tiet']} tiết)")
         
-        with st.container(border=True):
-            st.markdown(f"#### 🏷️ BÀI: {khbd_data.get('TEN_BAI_HOC', '')} ({khbd_data.get('THOI_LUONG', '')})")
-            st.success(f"**Mục tiêu kiến thức:**\n{khbd_data.get('MUC_TIEU_KIEN_THUC', '')}")
-            
-            # Phân rã tab hiển thị chi tiết không bị cắt cụt
-            tab1, tab2, tab3, tab4, tab5 = st.tabs(["1. Khởi động", "2.1. Hình thành KT (Tiết 1)", "2.2. Hình thành KT (Tiết 2)", "3. Luyện tập", "4. Vận dụng"])
-            
-            with tab1:
-                st.markdown("**Mục tiêu:**")
-                st.write(khbd_data.get('MUC_TIEU', ''))
-                st.markdown("**Nội dung (Trích dẫn SGK):**")
-                st.write(khbd_data.get('NOI_DUNG', ''))
-                st.markdown("**Tổ chức thực hiện:**")
-                st.write(f"- Chuyển giao: {khbd_data.get('CHUYEN_GIAO_NHIEM_VU_HOC_TAP', '')}")
-                st.write(f"- Thực hiện: {khbd_data.get('THUC_HIEN_NHIEM_VU_HOC_TAP', '')}")
-                st.write(f"- Báo cáo: {khbd_data.get('BAO_CAO_KET_QUA_VA_THAO_LUAN', '')}")
-                st.write(f"- Kết luận: {khbd_data.get('DANH_GIA_KET_QUA', '')}")
-                
-            with tab2:
-                st.markdown(f"**{khbd_data.get('TEN_HOAT_DONG', 'Hoạt động phần 1')}**")
-                st.markdown("**Nội dung chi tiết:**")
-                st.write(khbd_data.get('HD1_NOI_DUNG', ''))
-                st.markdown("**Tổ chức thực hiện:**")
-                st.write(f"- Chuyển giao: {khbd_data.get('CHUYEN_GIAO_NHIEM_VU_HOC_TAP_1', '')}")
-                st.write(f"- Thực hiện: {khbd_data.get('THUC_HIEN_NHIEM_VU_HOC_TAP_1', '')}")
-                
-            with tab3:
-                st.markdown(f"**{khbd_data.get('TEN_HOAT_DONG_2', 'Hoạt động phần 2')}**")
-                st.markdown("**Nội dung chi tiết:**")
-                st.write(khbd_data.get('HD2_NOI_DUNG', ''))
-                st.markdown("**Tổ chức thực hiện:**")
-                st.write(f"- Chuyển giao: {khbd_data.get('HD2_CHUYEN_GIAO_NHIEM_VU_HOC_TAP', '')}")
-                st.write(f"- Thực hiện: {khbd_data.get('HD2_THUC_HIEN_NHIEM_VU_HOC_TAP', '')}")
-                
-            with tab4:
-                st.markdown("**Nội dung Luyện tập:**")
-                st.write(khbd_data.get('LT_NOI_DUNG', ''))
-                
-            with tab5:
-                st.markdown("**Nội dung Vận dụng / STEM:**")
-                st.write(khbd_data.get('VD_NOI_DUNG', ''))
+        with st.expander("👀 Xem trước Kế hoạch bài dạy chi tiết", expanded=True):
+            st.markdown(khbd_cache.get('ai_generated_content', ''))
 
         col_down, col_del = st.columns(2)
         with col_down:
             try:
-                word_bytes = KhbdWordExporter.export_khbd(khbd_data)
+                word_bytes = export_word(khbd_cache)
                 st.download_button(
-                    label="📥 TẢI FILE WORD ĐÚNG CHUẨN MẪU 5512",
+                    label="📥 TẢI FILE WORD CHUẨN 5512 (ĐẦY ĐỦ 2 TIẾT, BẢNG, ẢNH, TOÁN)",
                     data=word_bytes,
-                    file_name=f"KHBD_{khbd_data.get('TEN_BAI_HOC', 'Bai_hoc').replace(' ', '_')}.docx",
+                    file_name=f"KHBD_{khbd_cache['title'].replace(' ', '_')}.docx",
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     type="primary",
                     use_container_width=True
                 )
             except Exception as e:
-                st.error(f"Lỗi xuất file: {str(e)}")
+                st.error(f"Lỗi tạo file Word: {e}")
                 
         with col_del:
             if st.button("🗑️ Xóa kết quả làm lại", use_container_width=True):
-                del st.session_state['khbd_data_clean']
+                del st.session_state['current_khbd_data']
                 st.rerun()
