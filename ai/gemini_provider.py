@@ -2,8 +2,7 @@
 """
 ============================================================
 MODULE: ai/gemini_provider.py
-Nhiệm vụ: Cung cấp giao tiếp chuẩn với Gemini API, có bộ lọc 
-nhận diện loại khóa (API Key vs Google Cloud OAuth Token).
+Nhiệm vụ: Cung cấp giao tiếp chuẩn với Gemini API (Hỗ trợ khóa dạng AQ mới).
 ============================================================
 """
 
@@ -16,22 +15,16 @@ class GeminiProvider(BaseAIProvider):
         self.api_key = api_key.strip()
         self.model_name = model_name
         
-        # Kiểm tra xem kỹ sư có vô tình dán nhầm Token Google Cloud / OAuth (AQ...) vào ô API Key không
-        if self.api_key.startswith("AQ.") or "ya29." in self.api_key:
-            raise ValueError(
-                "🔑 PHÁT HIỆN DÙNG NHẦM TOKEN GOOGLE CLOUD (DẠNG AQ...):\n"
-                "Bạn đang sử dụng Token/Credential của Google Cloud hoặc OAuth, nhưng hệ thống "
-                "đang gọi đến endpoint Google AI Studio (generativelanguage.googleapis.com).\n"
-                "Endpoint này CHỈ CHẤP NHẬN API Key chuẩn từ Google AI Studio (bắt đầu bằng 'AIza...').\n"
-                "👉 Vui lòng tạo API Key mới tại: https://aistudio.google.com/app/apikey và cập nhật lại vào Secrets/Cấu hình AI!"
-            )
-        
+        if not self.api_key:
+            raise ValueError("🔑 Lỗi: API Key cho Gemini không được để trống!")
+            
+        # ĐÃ SỬA: Loại bỏ bộ lọc chặn đầu AQ... cũ để chấp nhận các API Key mới từ Google AI Studio
         genai.configure(api_key=self.api_key)
 
     def generate_json(self, prompt: str, system_prompt: str = "") -> str:
         try:
             generation_config = {
-                "temperature": 0.2,
+                "temperature": 0.1,  # Giảm temperature xuống để AI bám sát dữ liệu gốc, không tự chế
                 "response_mime_type": "application/json"
             }
             
