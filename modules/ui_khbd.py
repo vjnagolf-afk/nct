@@ -51,7 +51,6 @@ def format_nls():
 def json_to_markdown_preview(raw_content: str) -> str:
     """Hàm chuyển đổi thông minh cấu trúc JSON thô thành giao diện Markdown sư phạm"""
     try:
-        # Nếu dữ liệu là chuỗi JSON, load thành dict
         if isinstance(raw_content, str):
             data = json.loads(raw_content)
         else:
@@ -60,7 +59,6 @@ def json_to_markdown_preview(raw_content: str) -> str:
         if not isinstance(data, dict):
             return str(raw_content)
             
-        # Trích xuất đối tượng gốc nếu được bọc trong key "Kế hoạch bài dạy"
         kb = data.get("Kế hoạch bài dạy", data)
         if not isinstance(kb, dict):
             kb = data
@@ -70,7 +68,6 @@ def json_to_markdown_preview(raw_content: str) -> str:
         md.append(f"**Môn:** {kb.get('Môn', '')} | **Lớp:** {kb.get('Lớp', '')} | **Thời gian:** {kb.get('Thời gian', '')}\n")
         md.append("---")
 
-        # Duyệt qua từng tiết học
         for k, v in kb.items():
             if k.startswith("Tiết"):
                 md.append(f"## 📌 {k.upper()} ({v.get('Thời gian', '')})")
@@ -101,7 +98,6 @@ def json_to_markdown_preview(raw_content: str) -> str:
                 
         return "\n".join(md)
     except Exception:
-        # Fallback nếu không phải JSON chuẩn thì trả về nguyên bản
         return str(raw_content)
 
 def render_khbd_ui(is_ai_enabled: bool = True):
@@ -237,7 +233,6 @@ def render_khbd_ui(is_ai_enabled: bool = True):
         st.markdown("---")
         st.markdown(f"### 📊 Kết quả Kế hoạch bài dạy: {khbd_cache['title'].upper()} ({khbd_cache['so_tiet']} tiết)")
         
-        # Chuyển đổi JSON thô thành Markdown sư phạm đẹp mắt để hiển thị giao diện xem trước
         formatted_preview = json_to_markdown_preview(khbd_cache.get('ai_generated_content', ''))
         
         with st.expander("👀 Xem trước Kế hoạch bài dạy chi tiết (Sư phạm)", expanded=True):
@@ -259,6 +254,7 @@ def render_khbd_ui(is_ai_enabled: bool = True):
                 st.error(f"Lỗi tạo file Word: {e}")
                 
         with col_del:
-            if st.button("🗑️ Xóa kết quả làm lại", use_countainer_width=True):
+            # ĐÃ SỬA LỖI: use_container_width=True chuẩn xác
+            if st.button("🗑️ Xóa kết quả làm lại", use_container_width=True):
                 del st.session_state['current_khbd_data']
                 st.rerun()
