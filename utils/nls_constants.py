@@ -117,39 +117,159 @@ KHUNG_NLS_GV = {
 
 KHUNG_NLS_HS = {
     "I. Khai thác dữ liệu và thông tin": {
-        "1.1. Duyệt, tìm kiếm và lọc dữ liệu, thông tin và nội dung số": "Xác định được nhu cầu thông tin, tìm kiếm được dữ liệu, thông tin và nội dung trong môi trường số, truy cập chúng và khai thác được kết quả tìm kiếm. Tạo và cập nhật được chiến lược tìm kiếm.",
-        "1.2. Đánh giá dữ liệu, thông tin và nội dung số": "Phân tích, so sánh và đánh giá được độ tin cậy và tính xác thực của nguồn dữ liệu, thông tin và nội dung số. Phân tích, giải thích và đánh giá được dữ liệu, thông tin và nội dung số.",
-        "1.3. Quản lý dữ liệu, thông tin và nội dung số": "Tổ chức, lưu trữ và truy xuất được dữ liệu, thông tin và nội dung trong môi trường số. Tổ chức và sắp xếp được chúng trong một môi trường có cấu trúc."
+        "1.1. Duyệt, tìm kiếm và lọc dữ liệu, thông tin và nội dung số": {
+            "Cơ bản": "Xác định được nhu cầu thông tin, tìm kiếm dữ liệu, thông tin và nội dung thông qua tìm kiếm đơn giản trong môi trường số. Tìm được cách truy cập những dữ liệu, thông tin và nội dung này cũng như điều hướng giữa chúng.[cite: 2]",
+            "Trung cấp": "Giải thích/Minh họa được nhu cầu thông tin. Thực hiện được rõ ràng và theo quy trình các tìm kiếm để tìm dữ liệu, thông tin và nội dung. Giải thích/Mô tả được cách truy cập và điều hướng các kết quả tìm kiếm.[cite: 2]",
+            "Nâng cao": "Đáp ứng/Đánh giá được nhu cầu thông tin. Áp dụng kỹ thuật và điều chỉnh được chiến lược tìm kiếm để tìm ra dữ liệu, thông tin phù hợp nhất. Chỉ cho người khác cách truy cập và điều hướng. Sử dụng linh hoạt và đa dạng chiến lược tìm kiếm.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp liên quan đến việc duyệt, tìm kiếm và lọc dữ liệu, thông tin và nội dung số. Tích hợp kiến thức bản thân để đóng góp vào thực tiễn và tri thức, đề xuất được những ý tưởng và quy trình mới.[cite: 2]"
+        },
+        "1.2. Đánh giá dữ liệu, thông tin và nội dung số": {
+            "Cơ bản": "Phát hiện được độ tin cậy và độ chính xác của các nguồn chung của dữ liệu, thông tin và nội dung số.[cite: 2]",
+            "Trung cấp": "Thực hiện phân tích, so sánh, đánh giá được độ tin cậy và độ chính xác của các nguồn dữ liệu, thông tin và nội dung số đã được tổ chức rõ ràng.[cite: 2]",
+            "Nâng cao": "Thực hiện đánh giá, đánh giá có tính phê phán được độ tin cậy và độ chính xác của các nguồn dữ liệu, thông tin và nội dung số. Tiến hành đánh giá được các dữ liệu, thông tin khác nhau.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp liên quan đến việc phân tích và đánh giá độ đáng tin cậy và chính xác các nguồn dữ liệu. Tích hợp sự hiểu biết để đóng góp vào thực tế và kiến thức chuyên môn.[cite: 2]"
+        },
+        "1.3. Quản lý dữ liệu, thông tin và nội dung số": {
+            "Cơ bản": "Xác định được cách tổ chức, lưu trữ và truy xuất dữ liệu, thông tin và nội dung một cách đơn giản trong môi trường số. Nhận biết được nơi để sắp xếp dữ liệu.[cite: 2]",
+            "Trung cấp": "Lựa chọn, sắp xếp được thông tin, dữ liệu, nội dung để dễ dàng lưu trữ và truy xuất trong một môi trường có cấu trúc.[cite: 2]",
+            "Nâng cao": "Triển khai, điều chỉnh được việc quản lý thông tin, dữ liệu và nội dung để dễ dàng nhất cho việc thu hồi, lưu trữ và sắp xếp trong môi trường có cấu trúc phù hợp nhất.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được giải pháp cho các vấn đề phức tạp liên quan đến việc quản lý dữ liệu, thông tin và nội dung để tổ chức, lưu trữ và truy xuất chúng trong môi trường số có cấu trúc.[cite: 2]"
+        }
     },
     "II. Giao tiếp và hợp tác trong môi trường số": {
-        "2.1. Tương tác thông qua công nghệ số": "Tương tác thông qua các công nghệ số khác nhau và nhận biết được phương tiện giao tiếp số nào phù hợp cho một bối cảnh cụ thể.",
-        "2.2. Chia sẻ thông tin và nội dung thông qua công nghệ số": "Chia sẻ dữ liệu, thông tin và nội dung số với người khác thông qua các công nghệ số phù hợp. Đóng vai trò là người trung gian, hiểu biết về thực hành trích dẫn và ghi chú nguồn.",
-        "2.3. Sử dụng công nghệ số để thực hiện trách nhiệm công dân": "Tham gia đóng góp cho xã hội thông qua việc sử dụng các dịch vụ số công và tư. Tìm kiếm được cơ hội, để trao quyền và thu hút công dân thông qua các công nghệ số phù hợp.",
-        "2.4. Hợp tác thông qua công nghệ số": "Sử dụng được các công cụ và công nghệ số cho các quá trình hợp tác cũng như để cùng xây dựng và đồng sáng tạo dữ liệu, tài nguyên và kiến thức.",
-        "2.5. Thực hiện quy tắc ứng xử trên mạng": "Nhận thức được các chuẩn mực hành vi và kiến thức khi sử dụng công nghệ số và tương tác trong môi trường số. Điều chỉnh được các chiến lược giao tiếp phù hợp với đối tượng cụ thể và nhận thức được sự đa dạng về văn hóa và thế hệ trong môi trường số.",
-        "2.6. Quản lý danh tính số": "Tạo và quản lý được một hoặc nhiều danh tính số để bảo vệ danh tiếng của bản thân, làm việc với dữ liệu mà một người tạo ra bằng nhiều công cụ, môi trường và dịch vụ số."
+        "2.1. Tương tác thông qua công nghệ số": {
+            "Cơ bản": "Lựa chọn được các công nghệ số đơn giản để tương tác và xác định được các phương tiện giao tiếp đơn giản thích hợp cho một bối cảnh cụ thể.[cite: 2]",
+            "Trung cấp": "Thực hiện được các tương tác được xác định rõ ràng, lựa chọn được nhiều công nghệ số và phương tiện giao tiếp số phù hợp cho một bối cảnh cụ thể.[cite: 2]",
+            "Nâng cao": "Sử dụng và thích nghi được với nhiều công nghệ số để có sự tương tác phù hợp nhất. Chỉ được cho người khác thấy phương tiện giao tiếp số nào thích hợp nhất.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp, liên quan đến tương tác thông qua công nghệ số và phương tiện giao tiếp số. Đề xuất được những ý tưởng và quy trình mới.[cite: 2]"
+        },
+        "2.2. Chia sẻ thông tin và nội dung thông qua công nghệ số": {
+            "Cơ bản": "Nhận biết được các công nghệ số đơn giản, phù hợp để chia sẻ dữ liệu, thông tin và nội dung số. Nhận biết được tham chiếu và ghi chú nguồn cơ bản.[cite: 2]",
+            "Trung cấp": "Lựa chọn, vận dụng được các công nghệ số phù hợp để chia sẻ. Giải thích được cách đóng vai trò trung gian và minh họa, áp dụng được các phương pháp tham chiếu và ghi chú nguồn.[cite: 2]",
+            "Nâng cao": "Chia sẻ thông qua nhiều công cụ số phù hợp, hướng dẫn người khác cách đóng vai trò trung gian. Đánh giá được các công nghệ số phù hợp nhất và thay đổi cách sử dụng các phương pháp tham chiếu.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được giải pháp cho các vấn đề phức tạp liên quan đến việc chia sẻ thông qua công nghệ số. Tích hợp kiến thức bản thân để đóng góp vào thực tiễn.[cite: 2]"
+        },
+        "2.3. Sử dụng công nghệ số để thực hiện trách nhiệm công dân": {
+            "Cơ bản": "Xác định, nhận biết được các dịch vụ số và công nghệ số đơn giản, phù hợp để nâng cao năng lực cho bản thân và tham gia vào xã hội với tư cách là một công dân.[cite: 2]",
+            "Trung cấp": "Lựa chọn được các dịch vụ số và công nghệ số được xác định rõ ràng để tự mình trang bị và tham gia vào xã hội như một công dân.[cite: 2]",
+            "Nâng cao": "Đề xuất, sử dụng và thay đổi được việc sử dụng các dịch vụ số và công nghệ số phù hợp nhất để nâng cao năng lực cho bản thân và tham gia vào xã hội.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp liên quan đến việc tham gia quyền công dân thông qua công nghệ số. Đề xuất được những ý tưởng và quy trình mới.[cite: 2]"
+        },
+        "2.4. Hợp tác thông qua công nghệ số": {
+            "Cơ bản": "Chọn được những công cụ và công nghệ số đơn giản cho các quá trình hợp tác.[cite: 2]",
+            "Trung cấp": "Lựa chọn được các công cụ và công nghệ số được xác định rõ ràng và thường xuyên cho các quá trình hợp tác.[cite: 2]",
+            "Nâng cao": "Đề xuất, thay đổi cách sử dụng và chọn được các công cụ và công nghệ số thích hợp nhất để cùng xây dựng và tạo ra dữ liệu, tài nguyên và kiến thức.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp giải quyết các vấn đề phức tạp liên quan đến việc sử dụng các quy trình hợp tác và xây dựng, đồng sáng tạo dữ liệu thông qua công nghệ số.[cite: 2]"
+        },
+        "2.5. Quy tắc ứng xử trên mạng": {
+            "Cơ bản": "Phân biệt được chuẩn mực hành vi đơn giản, chọn được các phương thức giao tiếp đơn giản và phân biệt được các khía cạnh đơn giản của sự đa dạng về văn hóa và thế hệ trong môi trường số.[cite: 2]",
+            "Trung cấp": "Làm rõ, thảo luận và thể hiện được các chuẩn mực hành vi, chiến lược giao tiếp thường xuyên, mô tả các khía cạnh đa dạng về văn hóa và thế hệ được xác định rõ ràng.[cite: 2]",
+            "Nâng cao": "Áp dụng và điều chỉnh các chuẩn mực hành vi, chiến lược giao tiếp và các khía cạnh đa dạng về văn hóa, thế hệ phù hợp nhất trong môi trường số.[cite: 2]",
+            "Chuyên sâu": "Tạo ra các giải pháp cho các vấn đề phức tạp liên quan đến nghi thức số tôn trọng các đối tượng khác nhau và sự đa dạng về văn hóa và thế hệ.[cite: 2]"
+        },
+        "2.6. Quản lý danh tính số": {
+            "Cơ bản": "Xác định được danh tính số, mô tả được những cách đơn giản để bảo vệ danh tiếng trực tuyến, nhận biết được dữ liệu đơn giản do mình tạo ra thông qua các công cụ, dịch vụ số.[cite: 2]",
+            "Trung cấp": "Phân biệt, hiển thị và giải thích được một loạt các danh tính số thông thường. Thao tác dữ liệu cá nhân tạo ra thông qua các công cụ, môi trường hoặc dịch vụ số.[cite: 2]",
+            "Nâng cao": "Sử dụng, phân biệt được nhiều danh tính số khác nhau, giải thích và áp dụng được các cách thích hợp hơn để bảo vệ danh tiếng, thay đổi được dữ liệu được tạo ra.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp liên quan đến quản lý danh tính số và bảo vệ danh tiếng trực tuyến của mọi người.[cite: 2]"
+        }
     },
     "III. Sáng tạo nội dung số": {
-        "3.1. Phát triển nội dung số": "Tạo và chỉnh sửa được nội dung số ở các định dạng khác nhau, nhằm thể hiện bản thân thông qua các phương tiện số.",
-        "3.2. Tích hợp và tạo lập lại nội dung số": "Sửa đổi, tinh chỉnh và tích hợp được thông tin và nội dung mới vào khối kiến thức và tài nguyên hiện có để tạo ra nội dung và kiến thức mới, độc đáo và phù hợp.",
-        "3.3. Thực thi bản quyền và giấy phép": "Hiểu được cách áp dụng bản quyền và giấy phép cho thông tin và nội dung số.",
-        "3.4. Lập trình": "Lập kế hoạch và phát triển được một chuỗi các câu lệnh dễ hiểu cho một hệ thống máy tính để giải quyết một vấn đề nhất định hoặc thực hiện một nhiệm vụ cụ thể."
+        "3.1. Phát triển nội dung số": {
+            "Cơ bản": "Xác định được các cách tạo và chỉnh sửa nội dung đơn giản ở các định dạng đơn giản, chọn được cách thể hiện bản thân thông qua việc tạo ra các phương tiện số đơn giản.[cite: 2]",
+            "Trung cấp": "Chỉ ra được cách tạo và chỉnh sửa nội dung có khái niệm cụ thể và mang tính phổ thông. Thể hiện được bản thân thông qua các phương tiện số thông thường.[cite: 2]",
+            "Nâng cao": "Áp dụng, thay đổi và điều chỉnh được cách tạo, chỉnh sửa nội dung bằng các định dạng phù hợp nhất. Chỉ ra được những cách thể hiện bản thân phù hợp nhất.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được giải pháp cho các vấn đề phức tạp liên quan đến việc tạo, chỉnh sửa nội dung ở các định dạng khác nhau và tự thể hiện bản thân thông qua các phương tiện số.[cite: 2]"
+        },
+        "3.2. Tích hợp và tạo lập lại nội dung số": {
+            "Cơ bản": "Chọn được các cách sửa đổi, tinh chỉnh, cải thiện và tích hợp các mục đơn giản có nội dung và thông tin mới để tạo ra những nội dung và thông tin mới.[cite: 2]",
+            "Trung cấp": "Giải thích, thảo luận và làm việc với các mục nội dung, thông tin mới khác nhau để sửa đổi, tinh chỉnh, cải thiện và tích hợp chúng tạo ra những mục mới và độc đáo.[cite: 2]",
+            "Nâng cao": "Tích hợp và đánh giá những cách phù hợp nhất để sửa đổi, sàng lọc, cải thiện và tích hợp các mục nội dung và thông tin cụ thể mới để tạo ra nội dung độc đáo.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp liên quan đến việc sửa đổi, tinh chỉnh, cải thiện và tích hợp nội dung và thông tin mới vào kiến thức hiện có.[cite: 2]"
+        },
+        "3.3. Thực thi bản quyền và giấy phép": {
+            "Cơ bản": "Xác định được các quy tắc đơn giản về bản quyền và giấy phép áp dụng cho dữ liệu, thông tin và nội dung số.[cite: 2]",
+            "Trung cấp": "Chỉ ra và thảo luận các quy tắc thông thường và được xác định rõ ràng về bản quyền và giấy phép áp dụng cho thông tin và nội dung số.[cite: 2]",
+            "Nâng cao": "Áp dụng và chọn được các quy tắc phù hợp nhất để áp dụng bản quyền và giấy phép cho dữ liệu, thông tin và nội dung số.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp liên quan đến việc áp dụng bản quyền và giấy phép cho dữ liệu, thông tin và nội dung số.[cite: 2]"
+        },
+        "3.4. Lập trình": {
+            "Cơ bản": "Liệt kê được các hướng dẫn đơn giản để hệ thống máy tính giải quyết một vấn đề đơn giản hoặc thực hiện một nhiệm vụ đơn giản.[cite: 2]",
+            "Trung cấp": "Liệt kê được các hướng dẫn thông thường và được xác định rõ ràng cho một hệ thống máy tính để giải quyết các vấn đề hoặc nhiệm vụ cụ thể.[cite: 2]",
+            "Nâng cao": "Tự thao tác và xác định được các hướng dẫn thích hợp nhất cho hệ thống máy tính để giải quyết một vấn đề nhất định và thực hiện các nhiệm vụ cụ thể.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp liên quan đến việc lập kế hoạch và phát triển các hướng dẫn cho hệ thống máy tính và thực hiện một nhiệm vụ.[cite: 2]"
+        }
     },
     "IV. An toàn": {
-        "4.1. Bảo vệ thiết bị": "Bảo vệ được các thiết bị và nội dung số cũng như hiểu rõ các rủi ro và mối đe dọa trong môi trường kỹ thuật số. Biết được các biện pháp an toàn và bảo mật cũng như có sự quan tâm đúng mức đến độ tin cậy và quyền riêng tư.",
-        "4.2. Bảo vệ dữ liệu cá nhân và quyền riêng tư": "Bảo vệ được dữ liệu cá nhân và quyền riêng tư trong môi trường số. Hiểu được cách sử dụng và chia sẻ thông tin định danh cá nhân một cách an toàn, có khả năng bảo vệ bản thân và người khác. Hiểu được cách các dịch vụ số sử dụng “Chính sách Quyền riêng tư để thông báo phương thức sử dụng dữ liệu cá nhân.",
-        "4.3. Bảo vệ sức khỏe và an sinh số": "Tránh được rủi ro và đe dọa đến sức khỏe thể chất và tinh thần khi sử dụng công nghệ số. Bảo vệ được bản thân và người khác khỏi nguy cơ trong môi trường số (ví dụ: bắt nạt trên mạng). Nhận biết được những công nghệ số giúp tăng cường thịnh vượng xã hội và sự hòa hợp trong xã hội.",
-        "4.4. Bảo vệ môi trường": "Nhận thức được tác động của công nghệ số và việc sử dụng công nghệ số đối với môi trường."
+        "4.1. Bảo vệ thiết bị": {
+            "Cơ bản": "Nhận biết được cách bảo vệ thiết bị, phân biệt được rủi ro, mối đe dọa đơn giản, chọn lựa và tuân theo được các biện pháp an toàn, bảo mật đơn giản.[cite: 2]",
+            "Trung cấp": "Chỉ ra và thiết lập được những cách thức cơ bản, phổ biến để bảo vệ thiết bị, phân biệt rủi ro và chọn lựa các biện pháp an toàn rõ ràng, thường xuyên.[cite: 2]",
+            "Nâng cao": "Áp dụng và chọn lựa được cách bảo vệ, các biện pháp an toàn và bảo mật phù hợp nhất cho thiết bị, nhận thức được sự đa dạng của các rủi ro.[cite: 2]",
+            "Chuyên sâu": "Thiết lập được các giải pháp cho những vấn đề mới và phức tạp liên quan đến việc bảo vệ thiết bị, quản lý rủi ro và áp dụng các biện pháp an toàn.[cite: 2]"
+        },
+        "4.2. Bảo vệ dữ liệu cá nhân và quyền riêng tư": {
+            "Cơ bản": "Lựa chọn những cách thức đơn giản để bảo vệ dữ liệu cá nhân, nhận biết các cách chia sẻ thông tin định danh cá nhân an toàn và nhận diện các tuyên bố cơ bản trong chính sách quyền riêng tư.[cite: 2]",
+            "Trung cấp": "Giải thích, thảo luận được các cách thức bảo vệ dữ liệu cá nhân, chia sẻ thông tin an toàn và chỉ ra các tuyên bố cơ bản trong chính sách quyền riêng tư.[cite: 2]",
+            "Nâng cao": "Áp dụng, chọn lựa và đánh giá cách thức phù hợp nhất để bảo vệ dữ liệu, chia sẻ thông tin định danh cá nhân, giải thích và đánh giá các tuyên bố trong chính sách quyền riêng tư.[cite: 2]",
+            "Chuyên sâu": "Thiết lập được các giải pháp cho các vấn đề mới và phức tạp liên quan đến việc bảo vệ dữ liệu cá nhân và quyền riêng tư trong môi trường số.[cite: 2]"
+        },
+        "4.3. Bảo vệ sức khỏe và an sinh số": {
+            "Cơ bản": "Phân biệt, lựa chọn được các cách thức đơn giản để tránh rủi ro, bảo vệ bản thân khỏi nguy cơ và nhận biết công nghệ số giúp tăng cường thịnh vượng xã hội.[cite: 2]",
+            "Trung cấp": "Giải thích, thảo luận và lựa chọn được những cách thức cơ bản, phổ biến để tránh rủi ro, bảo vệ bản thân và chỉ ra các công nghệ số giúp tăng cường thịnh vượng xã hội.[cite: 2]",
+            "Nâng cao": "Trình bày, áp dụng, phân biệt và vận dụng được cách thức phù hợp nhất để tránh rủi ro, bảo vệ bản thân, linh hoạt sử dụng công nghệ số tăng cường thịnh vượng xã hội.[cite: 2]",
+            "Chuyên sâu": "Thiết lập được các giải pháp cho các vấn đề mới và phức tạp liên quan đến việc tránh rủi ro sức khỏe, bảo vệ bản thân và sử dụng công nghệ số tăng cường sự hòa hợp xã hội.[cite: 2]"
+        },
+        "4.4. Bảo vệ môi trường": {
+            "Cơ bản": "Nhận biết được tác động cơ bản của công nghệ số và việc sử dụng công nghệ số đối với môi trường.[cite: 2]",
+            "Trung cấp": "Chỉ ra và thảo luận được những tác động cơ bản, phổ biến của công nghệ số và các cách thức bảo vệ môi trường.[cite: 2]",
+            "Nâng cao": "Trình bày và chọn lựa được giải pháp, cách thức khác nhau và phù hợp nhất để bảo vệ môi trường khỏi tác động của công nghệ số.[cite: 2]",
+            "Chuyên sâu": "Thiết lập được các giải pháp cho các vấn đề mới và phức tạp liên quan đến việc bảo vệ môi trường khỏi tác động của công nghệ số và việc sử dụng công nghệ số.[cite: 2]"
+        }
     },
     "V. Giải quyết vấn đề": {
-        "5.1. Giải quyết các vấn đề kỹ thuật": "Xác định được các vấn đề kỹ thuật khi vận hành thiết bị, sử dụng môi trường số và giải quyết chúng (từ xử lý sự cố đến giải quyết các vấn đề phức tạp hơn).",
-        "5.2. Xác định nhu cầu và giải pháp công nghệ": "Đánh giá được nhu cầu và xác định, đánh giá, lựa chọn, sử dụng các công cụ số cùng với các giải pháp công nghệ khả thi để giải quyết chúng. Điều chỉnh và tùy chỉnh được môi trường số theo nhu cầu cá nhân.",
-        "5.3. Sử dụng sáng tạo công nghệ số": "Sử dụng được các công cụ và công nghệ số để tạo ra kiến thức, đổi mới quy trình và sản phẩm. Gắn kết cá nhân và tập thể vào quá trình xử lý nhận thức để hiểu và giải quyết các vấn đề mang tính khái niệm và các tình huống có vấn đề trong môi trường số.",
-        "5.4. Xác định các vấn đề cần cải thiện về năng lực số": "Hiểu được năng lực số của chính mình cần được cải thiện hoặc cập nhật ở đâu. Có thể hỗ trợ người khác phát triển năng lực số của họ. Tìm kiếm được cơ hội phát triển bản thân và cập nhật sự phát triển số."
+        "5.1. Giải quyết các vấn đề kỹ thuật": {
+            "Cơ bản": "Xác định được các vấn đề kỹ thuật đơn giản khi vận hành thiết bị, sử dụng môi trường số và xác định được các giải pháp đơn giản để giải quyết chúng.[cite: 2]",
+            "Trung cấp": "Chỉ ra, phân biệt được các vấn đề kỹ thuật thông thường và chọn được các giải pháp được xác định rõ ràng, thông thường cho chúng.[cite: 2]",
+            "Nâng cao": "Đánh giá, thẩm định được các vấn đề kỹ thuật khi vận hành thiết bị và áp dụng, giải quyết chúng bằng những giải pháp khác nhau và phù hợp nhất.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp liên quan đến vấn đề kỹ thuật khi vận hành thiết bị và sử dụng môi trường số.[cite: 2]"
+        },
+        "5.2. Xác định nhu cầu và giải pháp công nghệ": {
+            "Cơ bản": "Xác định nhu cầu cá nhân, nhận ra các công cụ số, giải pháp công nghệ đơn giản và chọn cách đơn giản để tùy chỉnh môi trường số.[cite: 2]",
+            "Trung cấp": "Chỉ ra, giải thích nhu cầu cá nhân, chọn lựa các công cụ số thông thường và chọn cách điều chỉnh, tùy chỉnh môi trường số.[cite: 2]",
+            "Nâng cao": "Đánh giá nhu cầu cá nhân, áp dụng, chọn được các công cụ số phù hợp nhất và quyết định những cách thích hợp nhất để tùy chỉnh môi trường số.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp bằng cách sử dụng các công cụ số, giải pháp công nghệ và tùy chỉnh môi trường số theo nhu cầu cá nhân.[cite: 2]"
+        },
+        "5.3. Sử dụng sáng tạo công nghệ số": {
+            "Cơ bản": "Xác định được các công cụ, công nghệ số đơn giản để tạo ra kiến thức, đổi mới sản phẩm, thể hiện sự quan tâm đến xử lý nhận thức đơn giản để giải quyết vấn đề.[cite: 2]",
+            "Trung cấp": "Chọn, phân biệt được các công cụ, công nghệ số để tạo ra kiến thức, đổi mới quy trình, gắn kết cá nhân và tập thể vào quá trình xử lý nhận thức để giải quyết vấn đề.[cite: 2]",
+            "Nâng cao": "Áp dụng, điều chỉnh được các công cụ và công nghệ số phù hợp nhất để tạo ra kiến thức, đổi mới sản phẩm, giải quyết các vấn đề khái niệm của cá nhân và tập thể.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp bằng cách sử dụng các công cụ và công nghệ số. Đề xuất ý tưởng và quy trình mới.[cite: 2]"
+        },
+        "5.4. Xác định các vấn đề cần cải thiện về năng lực số": {
+            "Cơ bản": "Nhận ra được năng lực số của mình cần cải thiện ở đâu, xác định được nơi tìm kiếm cơ hội phát triển bản thân và cập nhật sự phát triển số.[cite: 2]",
+            "Trung cấp": "Giải thích, thảo luận, chứng minh được năng lực số của bản thân cần cải thiện, chỉ ra, minh họa cách hỗ trợ người khác và nơi tìm kiếm cơ hội phát triển.[cite: 2]",
+            "Nâng cao": "Đánh giá được sự phát triển năng lực số của người khác, quyết định những cách thích hợp nhất để cải thiện và lựa chọn những cơ hội thích hợp nhất để phát triển.[cite: 2]",
+            "Chuyên sâu": "Tạo ra được các giải pháp cho các vấn đề phức tạp liên quan đến việc nâng cao năng lực số, tìm cơ hội phát triển bản thân và bắt kịp xu hướng phát triển số.[cite: 2]"
+        }
     },
     "VI. Ứng dụng trí tuệ nhân tạo": {
-        "6.1. Hiểu biết về AI (trong đó có Gen AI)": "Hiểu được cách AI ảnh hưởng đến cuộc sống hằng ngày và vai trò của AI trong các lĩnh vực khác nhau. Nắm vững được nguyên tắc hoạt động của AI, khả năng và hạn chế của AI.",
-        "6.2. Sử dụng AI có đạo đức và trách nhiệm": "Sử dụng hiệu quả các hệ thống AI và hiểu rõ ứng dụng thực tế của chúng. Sử dụng được AI để tạo nội dung, khám phá kiến thức và giải quyết các vấn đề trong công việc, học tập và cuộc sống hàng ngày.",
-        "6.3. Đánh giá các công cụ AI": "Đánh giá và lọc được thông tin từ các nguồn được tạo ra hoặc xử lý bằng AI, để hiểu rõ hơn về tính đáng tin cậy và cách sử dụng thông tin đó. Đánh giá được AI trên các khía cạnh minh bạch, an toàn, đạo đức và tác động."
+        "6.1. Hiểu biết về trí tuệ nhân tạo": {
+            "Cơ bản": "Xác định các khái niệm cơ bản, giải thích nguyên tắc hoạt động, diễn giải các thuật ngữ và nhớ lại các ứng dụng đơn giản của AI trong cuộc sống.[cite: 2]",
+            "Trung cấp": "Áp dụng nguyên tắc cơ bản của AI để giải quyết vấn đề đơn giản, thực hiện thao tác cơ bản, phân tích cách AI hoạt động và so sánh các hệ thống AI.[cite: 2]",
+            "Nâng cao": "Đánh giá hiệu quả, kiểm tra giới hạn của AI, tổng hợp kiến thức để đề xuất cải tiến và thiết kế các giải pháp AI sáng tạo cho các vấn đề phức tạp.[cite: 2]",
+            "Chuyên sâu": "Phát triển hệ thống AI tiên tiến, tổ chức triển khai dự án phức tạp, nghiên cứu lý thuyết mới và xây dựng chiến lược dài hạn cho việc ứng dụng AI.[cite: 2]"
+        },
+        "6.2. Sử dụng trí tuệ nhân tạo": {
+            "Cơ bản": "Nhận diện công cụ AI đơn giản, thực hiện thao tác cơ bản, nhận thức về đạo đức, pháp lý, áp dụng công cụ AI giải quyết vấn đề, tương tác hệ thống AI cơ bản và tuân thủ pháp luật.[cite: 2]",
+            "Trung cấp": "Sử dụng công cụ AI trong công việc hàng ngày, thực hành kỹ năng qua dự án nhỏ, xem xét đạo đức, tối ưu hóa sử dụng, quản lý triển khai và bảo vệ dữ liệu cá nhân.[cite: 2]",
+            "Nâng cao": "Phát triển, điều chỉnh ứng dụng AI tùy chỉnh, đánh giá rủi ro đạo đức, pháp lý, tích hợp công cụ AI vào quy trình, giám sát hệ thống và chịu trách nhiệm về kết quả.[cite: 2]",
+            "Chuyên sâu": "Đào tạo người khác, lãnh đạo sử dụng AI có trách nhiệm, xây dựng chiến lược dài hạn, quản lý dự án AI phức tạp cao và bảo đảm tuân thủ pháp luật, tiêu chuẩn đạo đức.[cite: 2]"
+        },
+        "6.3. Đánh giá trí tuệ nhân tạo": {
+            "Cơ bản": "Nhận diện các yếu tố cơ bản cần đánh giá, mô tả chức năng chính, giải thích cách thức hoạt động và tóm tắt đặc điểm, ứng dụng của hệ thống AI.[cite: 2]",
+            "Trung cấp": "Phân tích hiệu quả, so sánh hiệu suất, đánh giá độ chính xác, tin cậy, xem xét kết quả và đưa ra nhận xét về hiệu quả của hệ thống AI.[cite: 2]",
+            "Nâng cao": "Phê phán khía cạnh kỹ thuật, đạo đức, kiểm tra tính chính xác của quyết định do AI đưa ra, đưa ra khuyến nghị cải tiến, phát triển tiêu chuẩn và đánh giá chiến lược.[cite: 2]",
+            "Chuyên sâu": "Thẩm định, xác nhận hiệu quả của hệ thống AI phức tạp, nghiên cứu phương pháp đánh giá mới, lãnh đạo dự án đánh giá và đưa ra các báo cáo chi tiết.[cite: 2]"
+        }
     }
 }
