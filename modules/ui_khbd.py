@@ -3,10 +3,12 @@
 ============================================================
 MODULE: modules/ui_khbd.py
 Nhiệm vụ: Giao diện Xây dựng Kế hoạch bài dạy chuẩn 5512 & TT18
+(Bản Kỹ sư trưởng: Tự động biên dịch JSON thô thành Markdown sư phạm)
 ============================================================
 """
 
 import streamlit as st
+import json
 import time
 from utils.document_reader import DocumentProcessor
 from utils.nls_constants import KHUNG_NLS_GV, KHUNG_NLS_HS
@@ -45,6 +47,62 @@ def format_nls():
     items = st.session_state.get("khbd_nls_list", [])
     if not items: return "Không có yêu cầu đặc thù về Năng lực số."
     return "\n".join([f"- Năng lực {item['linh_vuc']} > {item['thanh_phan']} ({item['muc_do']}): {item['noi_dung']}" for item in items])
+
+def json_to_markdown_preview(raw_content: str) -> str:
+    """Hàm chuyển đổi thông minh cấu trúc JSON thô thành giao diện Markdown sư phạm"""
+    try:
+        # Nếu dữ liệu là chuỗi JSON, load thành dict
+        if isinstance(raw_content, str):
+            data = json.loads(raw_content)
+        else:
+            data = raw_content
+            
+        if not isinstance(data, dict):
+            return str(raw_content)
+            
+        # Trích xuất đối tượng gốc nếu được bọc trong key "Kế hoạch bài dạy"
+        kb = data.get("Kế hoạch bài dạy", data)
+        if not isinstance(kb, dict):
+            kb = data
+
+        md = []
+        md.append(f"# KẾ HOẠCH BÀI DẠY: {str(kb.get('Bài', ''))}")
+        md.append(f"**Môn:** {kb.get('Môn', '')} | **Lớp:** {kb.get('Lớp', '')} | **Thời gian:** {kb.get('Thời gian', '')}\n")
+        md.append("---")
+
+        # Duyệt qua từng tiết học
+        for k, v in kb.items():
+            if k.startswith("Tiết"):
+                md.append(f"## 📌 {k.upper()} ({v.get('Thời gian', '')})")
+                noi_dung = v.get("Nội dung", {})
+                if isinstance(noi_dung, dict):
+                    for sec_title, sec_val in noi_dung.items():
+                        md.append(f"### 🔹 {sec_title}")
+                        if isinstance(sec_val, dict):
+                            for sub_k, sub_v in sec_val.items():
+                                if isinstance(sub_v, dict):
+                                    md.append(f"- **{sub_k}:**")
+                                    for sk, sv in sub_v.items():
+                                        if isinstance(sv, list):
+                                            md.append(f"  - _{sk}:_")
+                                            for item in sv:
+                                                md.append(f"    - {item}")
+                                        else:
+                                            md.append(f"  - _{sk}:_ {sv}")
+                                elif isinstance(sub_v, list):
+                                    md.append(f"- **{sub_k}:**")
+                                    for item in sub_v:
+                                        md.append(f"  - {item}")
+                                else:
+                                    md.append(f"- **{sub_k}:** {sub_v}")
+                        else:
+                            md.append(f"{sec_val}")
+                md.append("\n")
+                
+        return "\n".join(md)
+    except Exception:
+        # Fallback nếu không phải JSON chuẩn thì trả về nguyên bản
+        return str(raw_content)
 
 def render_khbd_ui(is_ai_enabled: bool = True):
     init_session_state()
@@ -157,7 +215,7 @@ def render_khbd_ui(is_ai_enabled: bool = True):
                 else:
                     provider = GeminiProvider(api_key, model_name="gemini-1.5-pro" if "Pro" in model_name else "gemini-1.5-flash")
                     
-                raw_markdown = provider.generate_json(prompt=prompt_hien_tai, system_prompt=KHBD_SYSTEM_PROMPT)
+                raw_json_str = provider.generate_json(prompt=prompt_hien_tai, system_prompt=KHBD_SYSTEM_PROMPT)
 
                 st.session_state['current_khbd_data'] = {
                     "is_khbd": True,
@@ -165,7 +223,7 @@ def render_khbd_ui(is_ai_enabled: bool = True):
                     "mon": mon_hoc,
                     "lop": khoi_lop,
                     "so_tiet": so_tiet,
-                    "ai_generated_content": raw_markdown
+                    "ai_generated_content": raw_json_str
                 }
                 st.success(f"🎉 Đã soạn thành công KHBD {so_tiet} tiết qua luồng {model_name}!")
                 st.rerun()
@@ -179,8 +237,11 @@ def render_khbd_ui(is_ai_enabled: bool = True):
         st.markdown("---")
         st.markdown(f"### 📊 Kết quả Kế hoạch bài dạy: {khbd_cache['title'].upper()} ({khbd_cache['so_tiet']} tiết)")
         
-        with st.expander("👀 Xem trước Kế hoạch bài dạy chi tiết", expanded=True):
-            st.markdown(khbd_cache.get('ai_generated_content', ''))
+        # Chuyển đổi JSON thô thành Markdown sư phạm đẹp mắt để hiển thị giao diện xem trước
+        formatted_preview = json_to_markdown_preview(khbd_cache.get('ai_generated_content', ''))
+        
+        with st.expander("👀 Xem trước Kế hoạch bài dạy chi tiết (Sư phạm)", expanded=True):
+            st.markdown(formatted_preview)
 
         col_down, col_del = st.columns(2)
         with col_down:
@@ -198,6 +259,6 @@ def render_khbd_ui(is_ai_enabled: bool = True):
                 st.error(f"Lỗi tạo file Word: {e}")
                 
         with col_del:
-            if st.button("🗑️ Xóa kết quả làm lại", use_container_width=True):
+            if st.button("🗑️ Xóa kết quả làm lại", use_countainer_width=True):
                 del st.session_state['current_khbd_data']
                 st.rerun()
