@@ -3,7 +3,7 @@
 ============================================================
 MODULE: core/validators.py
 Nhiệm vụ: Kiểm tra, làm sạch và tự động vá lỗi cú pháp JSON 
-do LLM sinh ra trước khi đưa vào hệ thống xử lý.
+do LLM sinh ra trước khi đưa vào hệ thống xử lý (Bản chống unescaped newlines).
 ============================================================
 """
 
@@ -17,8 +17,9 @@ class SystemValidator:
     @staticmethod
     def clean_and_validate_json(raw_text: str) -> str:
         """
-        Làm sạch chuỗi phản hồi từ AI, loại bỏ Markdown code block 
-        và tự động sửa các lỗi cú pháp JSON phổ biến (thiếu dấu phẩy, dấu phẩy thừa).
+        Làm sạch chuỗi phản hồi từ AI, loại bỏ Markdown code block,
+        xử lý triệt để các ký tự xuống dòng chưa escape bên trong chuỗi JSON,
+        và tự động vá lỗi cú pháp.
         """
         if not raw_text:
             raise ValueError("Chuỗi phản hồi từ AI trống, không thể phân tích JSON.")
@@ -39,12 +40,19 @@ class SystemValidator:
         if match:
             text = match.group(0)
         
-        # 3. Thử parse trực tiếp, nếu lỗi thì kích hoạt bộ tự động vá lỗi
+        # 3. Tự động escape các ký tự xuống dòng thực tế nằm bên trong chuỗi JSON (Tránh lỗi Unterminated string)
+        def escape_newlines_in_strings(match_obj):
+            s = match_obj.group(0)
+            return s.replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+
+        text = re.sub(r'"([^"\\]*(?:\\.[^"\\]*)*)"', escape_newlines_in_strings, text, flags=re.DOTALL)
+        
+        # 4. Thử parse trực tiếp, nếu vẫn lỗi cú pháp nhỏ thì kích hoạt bộ vá phụ
         try:
             json.loads(text)
             return text
         except json.JSONDecodeError as initial_err:
-            logger.warning(f"Phát hiện lỗi JSON ban đầu, đang tiến hành tự động vá lỗi: {initial_err}")
+            logger.warning(f"Phát hiện lỗi JSON sau khi escape newline, đang tiến hành tự động vá thêm: {initial_err}")
             repaired_text = SystemValidator._repair_json_string(text)
             try:
                 json.loads(repaired_text)
