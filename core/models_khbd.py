@@ -1,58 +1,69 @@
-from pydantic import BaseModel, Field, field_validator
-from typing import List
-
-class MucTieuSchema(BaseModel):
-    """Mô hình phân loại Mục tiêu bài học theo chuẩn GDPT 2018"""
-    kien_thuc: List[str] = Field(
-        description="Danh sách các yêu cầu cần đạt về kiến thức"
-    )
-    nang_luc: List[str] = Field(
-        description="Danh sách các năng lực chung và năng lực đặc thù cần hình thành"
-    )
-    pham_chat: List[str] = Field(
-        description="Danh sách các phẩm chất chủ yếu được bồi dưỡng trong bài"
-    )
-
-class HoatDongSchema(BaseModel):
-    """Mô hình cấu trúc cho một Hoạt động dạy học (Chuẩn 5512)"""
-    ten_hoat_dong: str = Field(
-        description="Tên hoạt động (VD: Hoạt động 1: Mở đầu/Khởi động; Hoạt động 2: Hình thành kiến thức...)"
-    )
-    thoi_gian_du_kien: int = Field(
-        description="Thời gian dự kiến để thực hiện hoạt động này (tính bằng phút)"
-    )
-    muc_tieu: str = Field(
-        description="Mục tiêu cụ thể của riêng hoạt động này"
-    )
-    noi_dung: str = Field(
-        description="Nội dung trọng tâm, câu hỏi hoặc nhiệm vụ giáo viên giao cho học sinh"
-    )
-    san_pham: str = Field(
-        description="Sản phẩm học tập mong đợi (câu trả lời, bài làm, mô hình...) mà học sinh phải hoàn thành"
-    )
-    to_chuc_thuc_hien: str = Field(
-        description="Chi tiết 4 bước: 1. Chuyển giao nhiệm vụ, 2. Thực hiện nhiệm vụ, 3. Báo cáo thảo luận, 4. Kết luận nhận định"
-    )
+# core/models_khbd.py
+from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 class KhbdSchema(BaseModel):
-    """Mô hình cấp cao nhất (Root Schema) cho một Kế hoạch bài dạy hoàn chỉnh"""
-    tieu_de_bai_hoc: str = Field(
-        description="Tên bài dạy (có thể được AI chuẩn hóa lại cho chuẩn xác)"
-    )
-    muc_tieu_bai_hoc: MucTieuSchema = Field(
-        description="Mục tiêu chung của toàn bộ bài học"
-    )
-    thiet_bi_hoc_lieu: str = Field(
-        description="Danh sách thiết bị, phần mềm, tài liệu cần chuẩn bị (Bao gồm cả cấu hình hòa nhập và năng lực số nếu có)"
-    )
-    tien_trinh_day_hoc: List[HoatDongSchema] = Field(
-        description="Chuỗi các hoạt động dạy học. Bắt buộc phải chia thành các hoạt động rõ ràng."
-    )
+    """Mô hình dữ liệu phẳng (Flat) ánh xạ 1-1 với file Word template."""
+    model_config = ConfigDict(extra='allow') # Cho phép AI sinh thêm trường nếu cần
+
+    CHU_DE: str = ""
+    TEN_BAI_HOC: str = ""
+    MON_HOC: str = ""
+    THOI_LUONG: str = ""
+    MUC_TIEU_KIEN_THUC: str = ""
+    NANG_LUC_CHUNG: str = ""
+    NANG_LUC_DAC_THU: str = ""
+    NANG_LUC_SO_VA_AI: str = ""
+    PHAM_CHAT: str = ""
+    GIAO_VIEN: str = ""
+    HOC_SINH: str = ""
     
-    @field_validator('tien_trinh_day_hoc')
-    @classmethod
-    def validate_so_luong_hoat_dong(cls, value):
-        """Trình bảo vệ: Cảnh báo nếu AI sinh quá ít hoặc quá nhiều hoạt động so với chuẩn"""
-        if len(value) < 3 or len(value) > 6:
-            raise ValueError("Tiến trình dạy học thường phải có từ 3 đến 6 hoạt động. Hãy kiểm tra lại cấu trúc AI sinh ra.")
-        return value
+    # HĐ 1
+    MUC_TIEU: str = ""
+    NOI_DUNG: str = ""
+    SAN_PHAM: str = ""
+    CHUYEN_GIAO_NHIEM_VU_HOC_TAP: str = ""
+    THUC_HIEN_NHIEM_VU_HOC_TAP: str = ""
+    BAO_CAO_KET_QUA_VA_THAO_LUAN: str = ""
+    DANH_GIA_KET_QUA: str = ""
+    
+    # HĐ 2.1
+    TEN_HOAT_DONG: str = ""
+    HD1_MUC_TIEU: str = ""
+    HD1_NOI_DUNG: str = ""
+    HD1_SAN_PHAM: str = ""
+    CHUYEN_GIAO_NHIEM_VU_HOC_TAP_1: str = ""
+    THUC_HIEN_NHIEM_VU_HOC_TAP_1: str = ""
+    BAO_CAO_KET_QUA_VA_THAO_LUAN_1: str = ""
+    KET_LUAN_1: str = ""
+    
+    # HĐ 2.2
+    TEN_HOAT_DONG_2: Optional[str] = ""
+    HD2_MUC_TIEU: Optional[str] = ""
+    HD2_NOI_DUNG: Optional[str] = ""
+    HD2_SAN_PHAM: Optional[str] = ""
+    HD2_CHUYEN_GIAO_NHIEM_VU_HOC_TAP: Optional[str] = ""
+    HD2_THUC_HIEN_NHIEM_VU_HOC_TAP: Optional[str] = ""
+    HD2_BAO_CAO_KET_QUA_VA_THAO_LUAN: Optional[str] = ""
+    HD2_KET_LUAN: Optional[str] = ""
+    
+    # HĐ 3
+    LT_MUC_TIEU: str = ""
+    LT_NOI_DUNG: str = ""
+    LT_SAN_PHAM: str = ""
+    CHUYEN_GIAO_NHIEM_VU_HOC_TAP_LT: str = ""
+    LT_THUC_HIEN_NHIEM_VU_HOC_TAP: str = ""
+    LT_BAO_CAO_KET_QUA_VA_THAO_LUAN: str = ""
+    LT_KET_LUAN: str = ""
+    
+    # HĐ 4
+    VD_MUC_TIEU: str = ""
+    VD_NOI_DUNG: str = ""
+    VD_SAN_PHAM: str = ""
+    TO_CHUC_THUC_HIEN: str = ""
+    VD_CHUYEN_GIAO_NHIEM_VU_HOC_TAP: str = ""
+    VD_THUC_HIEN_NHIEM_VU_HOC_TAP: str = ""
+    VD_BAO_CAO_KET_QUA_VA_THAO_LUAN: str = ""
+    VD_KET_LUAN: str = ""
+    
+    PHIEU_HOC_TAP: str = ""
