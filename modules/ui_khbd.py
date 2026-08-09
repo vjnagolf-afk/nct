@@ -6,6 +6,7 @@ from ai.gemini_provider import GeminiProvider
 from ai.master_prompts import KHBD_SYSTEM_PROMPT
 from engines.khbd_engine import KhbdEngine
 from exporters.word_khbd import KhbdWordExporter
+
 def render_khbd_ui(is_ai_enabled: bool = True):
     st.markdown(
         """
