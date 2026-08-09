@@ -14,7 +14,15 @@ from utils.nls_constants import KHUNG_NLS_GV, KHUNG_NLS_HS
 from ai.gemini_provider import GeminiProvider
 from ai.openai_provider import OpenAIProvider
 from ai.master_prompts import KHBD_SYSTEM_PROMPT
-from export.export_word import export_word
+
+# Import chính xác từ thư mục 'exporters' thực tế của dự án
+try:
+    from exporters.word_khbd import KhbdWordExporter
+except ImportError:
+    try:
+        from export.export_word import export_word as KhbdWordExporter # Fallback an toàn
+    except ImportError:
+        KhbdWordExporter = None
 
 def init_session_state():
     if "khbd_nls_list" not in st.session_state:
@@ -186,7 +194,13 @@ def render_khbd_ui(is_ai_enabled: bool = True):
         col_down, col_del = st.columns(2)
         with col_down:
             try:
-                word_bytes = export_word(khbd_cache)
+                if KhbdWordExporter and hasattr(KhbdWordExporter, 'export_to_word'):
+                    word_bytes = KhbdWordExporter.export_to_word(khbd_cache)
+                elif KhbdWordExporter and callable(KhbdWordExporter):
+                    word_bytes = KhbdWordExporter(khbd_cache)
+                else:
+                    raise RuntimeError("Không tìm thấy phương thức kết xuất Word hợp lệ.")
+                    
                 st.download_button(
                     label="📥 TẢI FILE WORD CHUẨN 5512 (ĐẦY ĐỦ 2 TIẾT, BẢNG, ẢNH, TOÁN)",
                     data=word_bytes,
