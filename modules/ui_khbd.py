@@ -153,45 +153,69 @@ def render_khbd_ui(is_ai_enabled: bool = True):
             except Exception as e:
                 st.error(f"❌ Lỗi hệ thống: {str(e)}")
 
-    # 6. HIỂN THỊ KẾT QUẢ & XUẤT WORD
+   # 6. HIỂN THỊ KẾT QUẢ & XUẤT WORD TRỰC QUAN
     if 'khbd_data_clean' in st.session_state:
         khbd_data = st.session_state['khbd_data_clean']
-        st.markdown("### 📊 Kết quả Kế hoạch bài dạy (Chuẩn 5512)")
+        st.markdown("### 📊 Kết quả Kế hoạch bài dạy chi tiết (Chuẩn 5512)")
         
         with st.container(border=True):
-            st.markdown(f"#### 🏷️ BÀI: {khbd_data.get('TEN_BAI_HOC', '')}")
-            st.info(f"**Mục tiêu kiến thức:**\n{khbd_data.get('MUC_TIEU_KIEN_THUC', '')}")
+            st.markdown(f"#### 🏷️ BÀI: {khbd_data.get('TEN_BAI_HOC', '')} ({khbd_data.get('THOI_LUONG', '')})")
+            st.success(f"**Mục tiêu kiến thức:**\n{khbd_data.get('MUC_TIEU_KIEN_THUC', '')}")
             
-            tab1, tab2, tab3, tab4 = st.tabs(["Khởi động", "Hình thành KT", "Luyện tập", "Vận dụng"])
+            # Phân rã tab hiển thị chi tiết không bị cắt cụt
+            tab1, tab2, tab3, tab4, tab5 = st.tabs(["1. Khởi động", "2.1. Hình thành KT (Tiết 1)", "2.2. Hình thành KT (Tiết 2)", "3. Luyện tập", "4. Vận dụng"])
+            
             with tab1:
-                st.write("**Nội dung:**\n", khbd_data.get('NOI_DUNG', ''))
-                st.write("**Chuyển giao NV:**\n", khbd_data.get('CHUYEN_GIAO_NHIEM_VU_HOC_TAP', ''))
+                st.markdown("**Mục tiêu:**")
+                st.write(khbd_data.get('MUC_TIEU', ''))
+                st.markdown("**Nội dung (Trích dẫn SGK):**")
+                st.write(khbd_data.get('NOI_DUNG', ''))
+                st.markdown("**Tổ chức thực hiện:**")
+                st.write(f"- Chuyển giao: {khbd_data.get('CHUYEN_GIAO_NHIEM_VU_HOC_TAP', '')}")
+                st.write(f"- Thực hiện: {khbd_data.get('THUC_HIEN_NHIEM_VU_HOC_TAP', '')}")
+                st.write(f"- Báo cáo: {khbd_data.get('BAO_CAO_KET_QUA_VA_THAO_LUAN', '')}")
+                st.write(f"- Kết luận: {khbd_data.get('DANH_GIA_KET_QUA', '')}")
+                
             with tab2:
-                st.write("**Nội dung 2.1:**\n", khbd_data.get('HD1_NOI_DUNG', ''))
+                st.markdown(f"**{khbd_data.get('TEN_HOAT_DONG', 'Hoạt động phần 1')}**")
+                st.markdown("**Nội dung chi tiết:**")
+                st.write(khbd_data.get('HD1_NOI_DUNG', ''))
+                st.markdown("**Tổ chức thực hiện:**")
+                st.write(f"- Chuyển giao: {khbd_data.get('CHUYEN_GIAO_NHIEM_VU_HOC_TAP_1', '')}")
+                st.write(f"- Thực hiện: {khbd_data.get('THUC_HIEN_NHIEM_VU_HOC_TAP_1', '')}")
+                
             with tab3:
-                st.write("**Nội dung luyện tập:**\n", khbd_data.get('LT_NOI_DUNG', ''))
+                st.markdown(f"**{khbd_data.get('TEN_HOAT_DONG_2', 'Hoạt động phần 2')}**")
+                st.markdown("**Nội dung chi tiết:**")
+                st.write(khbd_data.get('HD2_NOI_DUNG', ''))
+                st.markdown("**Tổ chức thực hiện:**")
+                st.write(f"- Chuyển giao: {khbd_data.get('HD2_CHUYEN_GIAO_NHIEM_VU_HOC_TAP', '')}")
+                st.write(f"- Thực hiện: {khbd_data.get('HD2_THUC_HIEN_NHIEM_VU_HOC_TAP', '')}")
+                
             with tab4:
-                st.write("**Vận dụng:**\n", khbd_data.get('VD_NOI_DUNG', ''))
+                st.markdown("**Nội dung Luyện tập:**")
+                st.write(khbd_data.get('LT_NOI_DUNG', ''))
+                
+            with tab5:
+                st.markdown("**Nội dung Vận dụng / STEM:**")
+                st.write(khbd_data.get('VD_NOI_DUNG', ''))
 
         col_down, col_del = st.columns(2)
         with col_down:
             try:
                 word_bytes = KhbdWordExporter.export_khbd(khbd_data)
                 st.download_button(
-                    label="📥 TẢI FILE WORD ĐÚNG CHUẨN MẪU TẢI LÊN",
+                    label="📥 TẢI FILE WORD ĐÚNG CHUẨN MẪU 5512",
                     data=word_bytes,
-                    file_name=f"KHBD_{ten_bai.replace(' ', '_')}.docx",
+                    file_name=f"KHBD_{khbd_data.get('TEN_BAI_HOC', 'Bai_hoc').replace(' ', '_')}.docx",
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     type="primary",
                     use_container_width=True
                 )
             except Exception as e:
-                st.error(str(e))
+                st.error(f"Lỗi xuất file: {str(e)}")
                 
         with col_del:
             if st.button("🗑️ Xóa kết quả làm lại", use_container_width=True):
                 del st.session_state['khbd_data_clean']
                 st.rerun()
-
-        with st.expander("👀 Xem trước Cấu trúc JSON Lõi", expanded=False):
-            st.json(st.session_state['khbd_data_clean'])
