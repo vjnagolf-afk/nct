@@ -1,30 +1,32 @@
-import anthropic
+from openai import OpenAI
 from ai.provider import BaseAIProvider
 from core.validators import SystemValidator
 
-class AnthropicProvider(BaseAIProvider):
-    def __init__(self, api_key: str, model_name: str = "claude-3-5-sonnet-20240620"):
-        """Khởi tạo kết nối với Anthropic API"""
-        self.client = anthropic.Anthropic(api_key=api_key)
+class OpenRouterProvider(BaseAIProvider):
+    def __init__(self, api_key: str, model_name: str = "google/gemini-2.5-flash"):
+        """Khởi tạo kết nối OpenRouter sử dụng OpenAI SDK"""
+        self.client = OpenAI(
+            base_url="[https://openrouter.ai/api/v1](https://openrouter.ai/api/v1)",
+            api_key=api_key,
+        )
         self.model_name = model_name
 
     def generate_json(self, prompt: str, system_prompt: str = "") -> str:
         try:
-            # Claude tuân thủ System Prompt rất tốt
-            response = self.client.messages.create(
+            # Vì OpenRouter gọi rất nhiều mô hình khác nhau, tính năng response_format 
+            # có thể không được hỗ trợ đồng đều. Ta dùng prompt engineering kết hợp Validator.
+            response = self.client.chat.completions.create(
                 model=self.model_name,
-                system=system_prompt,
-                max_tokens=4096,
-                temperature=0.2,
                 messages=[
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
-                ]
+                ],
+                temperature=0.2
             )
-            raw_text = response.content[0].text
             
-            # Sử dụng Validator tự viết để làm sạch chuỗi
+            raw_text = response.choices[0].message.content
             clean_json = SystemValidator.clean_and_validate_json(raw_text)
             return clean_json
             
         except Exception as e:
-            raise Exception(f"Lỗi hệ thống khi gọi Anthropic API: {str(e)}")
+            raise Exception(f"Lỗi hệ thống khi gọi OpenRouter API: {str(e)}")
