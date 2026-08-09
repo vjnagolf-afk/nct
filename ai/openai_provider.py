@@ -1,13 +1,45 @@
-from openai import OpenAI
+# -*- coding: utf-8 -*-
+"""
+============================================================
+MODULE: ai/openai_provider.py
+Nhiệm vụ: Cung cấp giao tiếp chuẩn với OpenAI API, tự động 
+chèn từ khóa định dạng JSON để thỏa mãn yêu cầu của OpenAI.
+============================================================
+"""
+
+import openai
 from ai.provider import BaseAIProvider
+from core.validators import SystemValidator
 
 class OpenAIProvider(BaseAIProvider):
-    def __init__(self, api_key: str, model_name: str = "gpt-4o"):
-        """Khởi tạo kết nối với OpenAI API"""
-        self.client = OpenAI(api_key=api_key)
+    def __init__(self, api_key: str, model_name: str = "gpt-4o-mini"):
+        self.api_key = api_key.strip()
         self.model_name = model_name
+        self.client = openai.OpenAI(api_key=self.api_key)
 
     def generate_json(self, prompt: str, system_prompt: str = "") -> str:
+        try:
+            # Đảm bảo system_prompt hoặc prompt bắt buộc chứa từ 'json' để vượt qua kiểm tra của OpenAI API
+            if "json" not in system_prompt.lower() and "json" not in prompt.lower():
+                system_prompt = (system_prompt + "\n\nImportant: You must return the final output strictly as a valid JSON object.").strip()
+
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt}
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.3
+            )
+            
+            raw_text = response.choices[0].message.content
+            return SystemValidator.clean_and_validate_json(raw_text)
+            
+        except Exception as e:
+            raise Exception(f"Lỗi khi gọi OpenAI API: {str(e)}")
+
+    def generate_text(self, prompt: str, system_prompt: str = "") -> str:
         try:
             response = self.client.chat.completions.create(
                 model=self.model_name,
@@ -15,10 +47,8 @@ class OpenAIProvider(BaseAIProvider):
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
                 ],
-                # Ép buộc ChatGPT phải trả về JSON thuần
-                response_format={"type": "json_object"},
-                temperature=0.2 
+                temperature=0.3
             )
             return response.choices[0].message.content
         except Exception as e:
-            raise Exception(f"Lỗi hệ thống khi gọi OpenAI API: {str(e)}")
+            raise Exception(f"Lỗi khi gọi OpenAI API: {str(e)}")
