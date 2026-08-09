@@ -1,1 +1,15 @@
+if 'khbd_data_clean' in st.session_state:
+        st.markdown("### 📊 Kết quả phân tích từ Engine")
+        
+        # Nút xuất file Word
+        word_bytes = KhbdWordExporter.export_khbd(st.session_state['khbd_data_clean'])
+        st.download_button(
+            label="📥 TẢI XUỐNG GIÁO ÁN (.DOCX)",
+            data=word_bytes,
+            file_name=f"KHBD_{mon_hoc}.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            type="primary"
+        )
 
+        with st.expander("👀 Xem trước Cấu trúc Dữ liệu (Sẵn sàng xuất Word)", expanded=False):
+            st.json(st.session_state['khbd_data_clean'])
