@@ -3,7 +3,7 @@
 ============================================================
 MODULE: modules/ui_khbd.py
 Nhiệm vụ: Giao diện Xây dựng KHBD chuẩn 5512
-(Bản Kỹ sư trưởng: Biên dịch JSON phẳng thành giao diện xem trước chuẩn xác)
+(Bản Kỹ sư trưởng: Khôi phục giao diện Tích hợp & Chống tràn Context AI)
 ============================================================
 """
 
@@ -60,16 +60,34 @@ def init_session_state():
     if "extracted_ga" not in st.session_state:
         st.session_state.extracted_ga = ""
 
-def json_to_markdown_preview(raw_content: str) -> str:
-    """Hàm biên dịch JSON phẳng (phục vụ template 5512) thành Markdown sư phạm xem trước"""
+def get_nls_framework(loai_khung): 
+    return KHUNG_NLS_GV if loai_khung == "Giáo viên (Thông tư 18)" else KHUNG_NLS_HS
+
+def add_nls():
+    linh_vuc = st.session_state.get("khbd_nls_linh_vuc", "")
+    thanh_phan = st.session_state.get("khbd_nls_thanh_phan", "")
+    muc_do = st.session_state.get("khbd_nls_muc_do", "")
     try:
-        if isinstance(raw_content, str):
-            data = json.loads(raw_content)
-        else:
-            data = raw_content
-            
-        if not isinstance(data, dict):
-            return str(raw_content)
+        framework = get_nls_framework(st.session_state.get("khbd_loai_khung_nls", "Giáo viên (Thông tư 18)"))
+        data_tp = framework.get(linh_vuc, {}).get(thanh_phan, {})
+        noi_dung = data_tp.get(muc_do, "") if isinstance(data_tp, dict) else data_tp
+    except Exception:
+        noi_dung = ""
+
+    if noi_dung: 
+        item = {"linh_vuc": linh_vuc, "thanh_phan": thanh_phan, "muc_do": muc_do, "noi_dung": noi_dung}
+        if item not in st.session_state.khbd_nls_list: 
+            st.session_state.khbd_nls_list.append(item)
+
+def format_nls():
+    items = st.session_state.get("khbd_nls_list", [])
+    if not items: return "Không có yêu cầu đặc thù về Năng lực số."
+    return "\n".join([f"- Năng lực {item['linh_vuc']} > {item['thanh_phan']} ({item['muc_do']}): {item['noi_dung']}" for item in items])
+
+def json_to_markdown_preview(raw_content: str) -> str:
+    try:
+        data = json.loads(raw_content) if isinstance(raw_content, str) else raw_content
+        if not isinstance(data, dict): return str(raw_content)
 
         md = []
         md.append(f"# KẾ HOẠCH BÀI DẠY: {data.get('TEN_BAI_HOC', '').upper()}")
@@ -89,7 +107,6 @@ def json_to_markdown_preview(raw_content: str) -> str:
 
         md.append("## III. TIẾN TRÌNH DẠY HỌC")
         
-        # HĐ Khởi động
         md.append("### 1. HOẠT ĐỘNG 1: MỞ ĐẦU / KHỞI ĐỘNG")
         md.append(f"- **Mục tiêu:** {data.get('MUC_TIEU', '')}")
         md.append(f"- **Nội dung:** {data.get('NOI_DUNG', '')}")
@@ -100,62 +117,51 @@ def json_to_markdown_preview(raw_content: str) -> str:
         md.append(f"  - _Báo cáo, thảo luận:_ {data.get('BAO_CAO_KET_QUA_VA_THAO_LUAN', '')}")
         md.append(f"  - _Đánh giá, kết luận:_ {data.get('DANH_GIA_KET_QUA', '')}\n")
 
-        # HĐ Hình thành kiến thức 1
         md.append(f"### 2. {data.get('TEN_HOAT_DONG', 'HOẠT ĐỘNG HÌNH THÀNH KIẾN THỨC')}")
         md.append(f"- **Mục tiêu:** {data.get('HD1_MUC_TIEU', '')}")
         md.append(f"- **Nội dung:** {data.get('HD1_NOI_DUNG', '')}")
         md.append(f"- **Sản phẩm:** {data.get('HD1_SAN_PHAM', '')}")
         md.append(f"- **Tổ chức thực hiện:**")
-        md.append(f"  - _Chuyển giao nhiệm vụ:_ {data.get('CHUYEN_GIAO_NHIEM_VU_HOC_TAP_1', '')}")
-        md.append(f"  - _Thực hiện nhiệm vụ:_ {data.get('THUC_HIEN_NHIEM_VU_HOC_TAP_1', '')}")
-        md.append(f"  - _Báo cáo, thảo luận:_ {data.get('BAO_CAO_KET_QUA_VA_THAO_LUAN_1', '')}")
-        md.append(f"  - _Đánh giá, kết luận:_ {data.get('KET_LUAN_1', '')}\n")
+        md.append(f"  - _Chuyển giao:_ {data.get('CHUYEN_GIAO_NHIEM_VU_HOC_TAP_1', '')}")
+        md.append(f"  - _Thực hiện:_ {data.get('THUC_HIEN_NHIEM_VU_HOC_TAP_1', '')}")
+        md.append(f"  - _Báo cáo:_ {data.get('BAO_CAO_KET_QUA_VA_THAO_LUAN_1', '')}")
+        md.append(f"  - _Kết luận:_ {data.get('KET_LUAN_1', '')}\n")
 
-        # HĐ Hình thành kiến thức 2 (Nếu có tiết 2)
         if data.get('TEN_HOAT_DONG_2'):
             md.append(f"### 3. {data.get('TEN_HOAT_DONG_2', '')}")
             md.append(f"- **Mục tiêu:** {data.get('HD2_MUC_TIEU', '')}")
             md.append(f"- **Nội dung:** {data.get('HD2_NOI_DUNG', '')}")
             md.append(f"- **Sản phẩm:** {data.get('HD2_SAN_PHAM', '')}")
             md.append(f"- **Tổ chức thực hiện:**")
-            md.append(f"  - _Chuyển giao nhiệm vụ:_ {data.get('HD2_CHUYEN_GIAO_NHIEM_VU_HOC_TAP', '')}")
-            md.append(f"  - _Thực hiện nhiệm vụ:_ {data.get('HD2_THUC_HIEN_NHIEM_VU_HOC_TAP', '')}")
-            md.append(f"  - _Báo cáo, thảo luận:_ {data.get('HD2_BAO_CAO_KET_QUA_VA_THAO_LUAN', '')}")
-            md.append(f"  - _Đánh giá, kết luận:_ {data.get('HD2_KET_LUAN', '')}\n")
+            md.append(f"  - _Chuyển giao:_ {data.get('HD2_CHUYEN_GIAO_NHIEM_VU_HOC_TAP', '')}")
+            md.append(f"  - _Thực hiện:_ {data.get('HD2_THUC_HIEN_NHIEM_VU_HOC_TAP', '')}")
+            md.append(f"  - _Báo cáo:_ {data.get('HD2_BAO_CAO_KET_QUA_VA_THAO_LUAN', '')}")
+            md.append(f"  - _Kết luận:_ {data.get('HD2_KET_LUAN', '')}\n")
 
-        # Luyện tập
         md.append("### 4. HOẠT ĐỘNG LUYỆN TẬP")
         md.append(f"- **Mục tiêu:** {data.get('LT_MUC_TIEU', '')}")
         md.append(f"- **Nội dung:** {data.get('LT_NOI_DUNG', '')}")
         md.append(f"- **Sản phẩm:** {data.get('LT_SAN_PHAM', '')}")
         md.append(f"- **Tổ chức thực hiện:**")
-        md.append(f"  - _Chuyển giao nhiệm vụ:_ {data.get('CHUYEN_GIAO_NHIEM_VU_HOC_TAP_LT', '')}")
-        md.append(f"  - _Thực hiện nhiệm vụ:_ {data.get('LT_THUC_HIEN_NHIEM_VU_HOC_TAP', '')}")
-        md.append(f"  - _Báo cáo, thảo luận:_ {data.get('LT_BAO_CAO_KET_QUA_VA_THAO_LUAN', '')}")
-        md.append(f"  - _Đánh giá, kết luận:_ {data.get('LT_KET_LUAN', '')}\n")
+        md.append(f"  - _Chuyển giao:_ {data.get('CHUYEN_GIAO_NHIEM_VU_HOC_TAP_LT', '')}")
+        md.append(f"  - _Thực hiện:_ {data.get('LT_THUC_HIEN_NHIEM_VU_HOC_TAP', '')}")
+        md.append(f"  - _Báo cáo:_ {data.get('LT_BAO_CAO_KET_QUA_VA_THAO_LUAN', '')}")
+        md.append(f"  - _Kết luận:_ {data.get('LT_KET_LUAN', '')}\n")
 
-        # Vận dụng
         md.append("### 5. HOẠT ĐỘNG VẬN DỤNG")
         md.append(f"- **Mục tiêu:** {data.get('VD_MUC_TIEU', '')}")
         md.append(f"- **Nội dung:** {data.get('VD_NOI_DUNG', '')}")
         md.append(f"- **Sản phẩm:** {data.get('VD_SAN_PHAM', '')}")
         md.append(f"- **Tổ chức thực hiện:**")
-        md.append(f"  - _Chuyển giao nhiệm vụ:_ {data.get('VD_CHUYEN_GIAO_NHIEM_VU_HOC_TAP', '')}")
-        md.append(f"  - _Thực hiện nhiệm vụ:_ {data.get('VD_THUC_HIEN_NHIEM_VU_HOC_TAP', '')}")
-        md.append(f"  - _Báo cáo, thảo luận:_ {data.get('VD_BAO_CAO_KET_QUA_VA_THAO_LUAN', '')}")
-        md.append(f"  - _Đánh giá, kết luận:_ {data.get('VD_KET_LUAN', '')}\n")
+        md.append(f"  - _Chuyển giao:_ {data.get('VD_CHUYEN_GIAO_NHIEM_VU_HOC_TAP', '')}")
+        md.append(f"  - _Thực hiện:_ {data.get('VD_THUC_HIEN_NHIEM_VU_HOC_TAP', '')}")
+        md.append(f"  - _Báo cáo:_ {data.get('VD_BAO_CAO_KET_QUA_VA_THAO_LUAN', '')}")
+        md.append(f"  - _Kết luận:_ {data.get('VD_KET_LUAN', '')}\n")
 
         return "\n".join(md)
     except Exception as e:
         return f"Lỗi hiển thị xem trước: {str(e)}\n\nNội dung gốc:\n{raw_content}"
 
-def get_nls_framework(loai_khung): 
-    return KHUNG_NLS_GV if loai_khung == "Giáo viên (Thông tư 18)" else KHUNG_NLS_HS
-
-def format_nls():
-    items = st.session_state.get("khbd_nls_list", [])
-    if not items: return "Không có yêu cầu đặc thù về Năng lực số."
-    return "\n".join([f"- Năng lực {item['linh_vuc']} > {item['thanh_phan']} ({item['muc_do']}): {item['noi_dung']}" for item in items])
 
 def render_khbd_ui(is_ai_enabled: bool = True):
     init_session_state()
@@ -192,6 +198,47 @@ def render_khbd_ui(is_ai_enabled: bool = True):
     else:
         st.session_state.extracted_sgk = ""
 
+    if file_ga:
+        ga_names = [f.name for f in file_ga]
+        if st.session_state.get("ga_files_cache") != ga_names:
+            st.session_state.extracted_ga = "\n".join([safe_extract_file(f) for f in file_ga])
+            st.session_state.ga_files_cache = ga_names
+    else:
+        st.session_state.extracted_ga = ""
+
+    # KHÔI PHỤC GIAO DIỆN TÍCH HỢP CHUYÊN SÂU
+    with st.expander("🔧 Tích hợp chuyên sâu (Hòa nhập, AI, Số hóa)", expanded=False):
+        tich_hop_ai = st.checkbox("🤖 Tích hợp hoạt động sử dụng AI trong bài học")
+        tich_hop_hoa_nhap = st.checkbox("🤝 Tích hợp Dạy học hòa nhập (HS Khuyết tật)")
+        nhu_cau_hoa_nhap = st.multiselect("Đặc điểm khuyết tật:", ["Vận động", "Nghe", "Nói", "Nhìn", "Trí tuệ", "Tự kỷ / ADHD", "Khác"]) if tich_hop_hoa_nhap else []
+
+        tich_hop_nls = st.checkbox("💻 Tích hợp Năng lực số (Theo Thông tư 18)")
+        if tich_hop_nls:
+            with st.container(border=True):
+                loai_khung = st.radio("Đối tượng áp dụng", ["Giáo viên (Thông tư 18)", "Học sinh (Khung DigComp)"], horizontal=True)
+                st.session_state["khbd_loai_khung_nls"] = loai_khung
+                
+                framework = get_nls_framework(loai_khung)
+                col_nls1, col_nls2, col_nls3 = st.columns(3)
+                with col_nls1:
+                    linh_vuc = st.selectbox("Miền năng lực", list(framework.keys()), key="khbd_nls_linh_vuc")
+                with col_nls2:
+                    thanh_phan = st.selectbox("Thành phần", list(framework.get(linh_vuc, {}).keys()), key="khbd_nls_thanh_phan")
+                with col_nls3:
+                    data_tp = framework.get(linh_vuc, {}).get(thanh_phan, {})
+                    levels = list(data_tp.keys()) if isinstance(data_tp, dict) else ["Chuẩn chung"]
+                    muc_do = st.selectbox("Mức độ", levels, key="khbd_nls_muc_do")
+                
+                if st.button("➕ Thêm Năng lực số này"):
+                    add_nls()
+                    
+                if st.session_state.khbd_nls_list:
+                    st.markdown("**Danh sách NLS đã chọn:**")
+                    st.markdown(format_nls())
+                    if st.button("🗑️ Xóa danh sách NLS"):
+                        st.session_state.khbd_nls_list = []
+                        st.rerun()
+
     st.divider()
 
     with st.form("ai_generate_form"):
@@ -202,18 +249,30 @@ def render_khbd_ui(is_ai_enabled: bool = True):
         if not ten_bai.strip():
             st.warning("⚠️ Vui lòng nhập Tên bài học.")
         else:
-            with st.spinner(f"⏳ Đang định tuyến tới [{model_name}] để phân tích sâu SGK..."):
+            with st.spinner(f"⏳ Đang xử lý tài liệu và gọi [{model_name}]..."):
                 try:
-                    yeu_cau = f"- Soạn KHBD chuẩn 5512 CỰC KỲ CHI TIẾT với thời lượng chính xác {so_tiet} tiết cho môn {mon_hoc} {khoi_lop}, bài: {ten_bai}.\n"
-                    yeu_cau += f"- Phân rã chi tiết rạch ròi theo từng tiết học (Tiết 1, Tiết 2,...).\n"
+                    # BỘ LỌC CHỐNG TRÀN CONTEXT (Cắt tối đa 150,000 ký tự ~ 40k tokens)
+                    sgk_safe_text = st.session_state.extracted_sgk[:150000]
+                    if len(st.session_state.extracted_sgk) > 150000:
+                        sgk_safe_text += "\n\n[...NỘI DUNG ĐÃ BỊ CẮT BỚT DO FILE QUÁ DÀI...]"
                     
-                    prompt_hien_tai = f"{yeu_cau}\n\nSGK / TÀI LIỆU NGUỒN:\n{st.session_state.extracted_sgk}\n\nGIÁO ÁN CŨ:\n{st.session_state.extracted_ga}"
+                    ga_safe_text = st.session_state.extracted_ga[:50000]
+
+                    yeu_cau = f"- Soạn KHBD chuẩn 5512 CỰC KỲ CHI TIẾT với thời lượng chính xác {so_tiet} tiết cho môn {mon_hoc} {khoi_lop}, bài: {ten_bai}.\n"
+                    yeu_cau += f"- Bắt buộc phân rã chi tiết rạch ròi theo từng tiết học.\n"
+                    yeu_cau += f"- Tuyệt đối KHÔNG LẶP LẠI tiêu đề mào đầu trong nội dung sinh ra.\n"
+                    
+                    if tich_hop_ai: yeu_cau += "- Lồng ghép hoạt động sử dụng AI.\n"
+                    if tich_hop_hoa_nhap and nhu_cau_hoa_nhap: yeu_cau += f"- Lưu ý phương pháp cho HS khuyết tật: {', '.join(nhu_cau_hoa_nhap)}.\n"
+                    if tich_hop_nls and st.session_state.khbd_nls_list: yeu_cau += f"- Tích hợp Năng lực số:\n{format_nls()}\n"
+                    
+                    prompt_hien_tai = f"{yeu_cau}\n\nSGK / TÀI LIỆU NGUỒN:\n{sgk_safe_text}\n\nGIÁO ÁN CŨ:\n{ga_safe_text}"
 
                     is_openai = "GPT" in model_name
                     api_key = st.secrets.get("OPENAI_API_KEY" if is_openai else "GEMINI_API_KEY", "")
                     
                     if not api_key:
-                        st.error(f"❌ Không tìm thấy API Key cho {model_name}.")
+                        st.error(f"❌ Không tìm thấy API Key cho {model_name} trong cấu hình.")
                     else:
                         if is_openai:
                             provider = OpenAIProvider(api_key, model_name="gpt-4o" if "4o" in model_name and "Mini" not in model_name else "gpt-4o-mini")
@@ -223,18 +282,18 @@ def render_khbd_ui(is_ai_enabled: bool = True):
                         raw_json_str = provider.generate_json(prompt=prompt_hien_tai, system_prompt=KHBD_SYSTEM_PROMPT)
 
                         st.session_state['current_khbd_data'] = {
-                            "is_khbd": True, "title": ten_bai, "so_tiet": so_tiet, "ai_generated_content": raw_json_str
+                            "is_khbd": True, "title": ten_bai, "mon": mon_hoc, "lop": khoi_lop, 
+                            "so_tiet": so_tiet, "ai_generated_content": raw_json_str
                         }
                         st.success(f"🎉 Đã soạn thành công KHBD {so_tiet} tiết!")
                 except Exception as e:
-                    st.error(f"❌ Lỗi hệ thống: {str(e)}")
+                    st.error(f"❌ {str(e)}")
 
     khbd_cache = st.session_state.get('current_khbd_data')
     if khbd_cache and khbd_cache.get('is_khbd'):
         st.markdown("---")
         st.markdown(f"### 📊 Kết quả Kế hoạch bài dạy: {khbd_cache['title'].upper()} ({khbd_cache['so_tiet']} tiết)")
         
-        # Gọi hàm render
         formatted_preview = json_to_markdown_preview(khbd_cache.get('ai_generated_content', ''))
         clean_preview = format_latex_for_streamlit(formatted_preview)
         
