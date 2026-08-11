@@ -3,7 +3,7 @@
 ============================================================
 MODULE: exporters/word_khbd.py
 Nhiệm vụ: Điền cấu trúc JSON phẳng vào Template Word 5512,
-xử lý dứt điểm công thức Toán học / SQRT.
+xử lý dứt điểm "ảo giác" công thức Toán học / v(x) / SQRT.
 ============================================================
 """
 
@@ -13,7 +13,7 @@ import json
 import docx
 
 class ScienceNormalizer:
-    """Bộ lọc chuẩn hóa khoa học (Toán, Lý, Hóa) chống cắt cụt dấu căn và ký hiệu"""
+    """Bộ lọc chuẩn hóa khoa học, chống cắt cụt dấu căn và ép chuẩn ký hiệu bị ảo giác"""
     SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
     SUP = str.maketrans("0123456789+-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻")
     MAP = {
@@ -31,13 +31,20 @@ class ScienceNormalizer:
         
         text = str(text).replace('$', '').strip()
         
-        # Xử lý các từ khóa toán học LLM hay sinh ra như SQRT(16) -> √(16)
-        text = re.sub(r'(?:SQRT|sqrt)\s*\(([^)]+)\)', r'√(\1)', text)
-        text = re.sub(r'\\sqrt\s*\{([\s\S]+?)\}', r'√( \1 )', text)
+        # Xử lý các từ khóa ảo giác của AI: SQRT(x), sqrt(x), v(x), V(x)
+        text = re.sub(r'(?i)sqrt\s*\(([^)]+)\)', r'√(\1)', text)
+        text = re.sub(r'\bv\(([^)]+)\)', r'√(\1)', text)
+        text = re.sub(r'\bV\(([^)]+)\)', r'√(\1)', text)
         
+        # Xử lý LaTeX chuẩn \sqrt{}
+        text = re.sub(r'\\sqrt\s*\{([\s\S]+?)\}', r'√(\1)', text)
+        text = re.sub(r'\\sqrt\s*([a-zA-Z0-9]+)', r'√\1', text)
+        
+        # Phân số LaTeX
         while r'\frac{' in text:
-            text = re.sub(r'\\frac\{([\s\S]+?)\}\{([\s\S]+?)\}', r'( \1 / \2 )', text)
+            text = re.sub(r'\\frac\{([\s\S]+?)\}\{([\s\S]+?)\}', r'(\1)/(\2)', text)
             
+        # Chỉ số trên dưới
         text = re.sub(r'([A-Z][a-z]?|\))(\d+)', lambda m: m.group(1) + m.group(2).translate(cls.SUB), text)
         text = re.sub(r'([A-Za-z₀₁₂₃₄₅₆₇₈₉\)]+)\^(\d*[+\-])', lambda m: m.group(1) + m.group(2).translate(cls.SUP), text)
         
@@ -52,7 +59,7 @@ class KhbdWordExporter:
         if placeholder in paragraph.text:
             cleaned_value = ScienceNormalizer.normalize(str(value))
             
-            # Nếu nội dung có dấu xuống dòng \n, cần tách thành nhiều paragraph con để giữ form Word
+            # Tách dòng an toàn giữ nguyên Style của Word
             if "\n" in cleaned_value:
                 lines = cleaned_value.split("\n")
                 paragraph.text = paragraph.text.replace(placeholder, lines[0])
@@ -67,19 +74,19 @@ class KhbdWordExporter:
         try:
             doc = docx.Document(template_path)
         except Exception:
-            # Fallback nếu không có file template trong hệ thống
+            # Fallback an toàn nếu mất file mẫu
             doc = docx.Document()
             doc.add_paragraph("LỖI HỆ THỐNG: Không tìm thấy file mẫu tại đường dẫn 'templates/word/mau_khbd_5512.docx'")
             bio = io.BytesIO()
             doc.save(bio)
             return bio.getvalue()
             
-        # Tìm và điền vào các đoạn văn tự do
+        # Điền biến vào văn bản
         for p in list(doc.paragraphs):
             for key, value in khbd_data.items():
                 cls.replace_text_in_paragraph(p, key, value)
                 
-        # Tìm và điền vào các ô trong bảng
+        # Điền biến vào bảng biểu
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
@@ -97,7 +104,7 @@ class KhbdWordExporter:
         if isinstance(data_cache, dict):
             ai_content = data_cache.get("ai_generated_content", "")
             try:
-                # Đảm bảo chuyển JSON string thành Dict để điền biến
+                # Ép chuỗi AI sinh ra thành chuẩn JSON Dictionary
                 json_data = json.loads(ai_content) if isinstance(ai_content, str) else ai_content
                 return cls.export_khbd(json_data)
             except json.JSONDecodeError:
