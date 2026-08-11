@@ -2,13 +2,12 @@
 """
 ============================================================
 MODULE: ai/openai_provider.py
-Nhiệm vụ: Cung cấp giao tiếp chuẩn với OpenAI API, tự động 
-chèn từ khóa định dạng JSON để thỏa mãn yêu cầu của OpenAI.
+Nhiệm vụ: Cung cấp giao tiếp chuẩn với OpenAI API.
 ============================================================
 """
 
 import openai
-from .provider import BaseAIProvider
+from ai.provider import BaseAIProvider
 from core.validators import SystemValidator
 
 class OpenAIProvider(BaseAIProvider):
@@ -19,7 +18,6 @@ class OpenAIProvider(BaseAIProvider):
 
     def generate_json(self, prompt: str, system_prompt: str = "") -> str:
         try:
-            # Đảm bảo system_prompt hoặc prompt bắt buộc chứa từ 'json' để vượt qua kiểm tra của OpenAI API
             if "json" not in system_prompt.lower() and "json" not in prompt.lower():
                 system_prompt = (system_prompt + "\n\nImportant: You must return the final output strictly as a valid JSON object.").strip()
 
