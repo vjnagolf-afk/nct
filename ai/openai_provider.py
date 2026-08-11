@@ -8,7 +8,7 @@ chèn từ khóa định dạng JSON để thỏa mãn yêu cầu của OpenAI.
 """
 
 import openai
-from ai.provider import BaseAIProvider
+from .provider import BaseAIProvider
 from core.validators import SystemValidator
 
 class OpenAIProvider(BaseAIProvider):
