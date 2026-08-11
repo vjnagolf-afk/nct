@@ -185,8 +185,6 @@ def json_to_markdown_preview(raw_content: str) -> str:
         return "\n".join(md)
     except Exception as e:
         return f"Lỗi hiển thị xem trước: {str(e)}\n\nNội dung gốc:\n{raw_content}"
-# -*- coding: utf-8 -*-
-"""
 # ============================================================
 # KHỐI MÃ SỬA LỖI 1 & 2: CẮT DUNG LƯỢNG CHỐNG TRÀN TOKEN VÀ TPM
 # (Thay thế đoạn xử lý chuỗi safe_text cũ trong Phần 3 của ui_khbd.py)
@@ -217,4 +215,3 @@ if tich_hop_nls and st.session_state.khbd_nls_list: yeu_cau += f"- Tích hợp N
 
 # Tạo chuỗi Prompt cuối cùng đã tối ưu hóa độ dài
 prompt_hien_tai = f"{yeu_cau}\n\nSGK / TÀI LIỆU NGUỒN KHÁI QUÁT:\n{sgk_safe_text}\n\nGIÁO ÁN MẪU THAM KHẢO:\n{ga_safe_text}"
-
