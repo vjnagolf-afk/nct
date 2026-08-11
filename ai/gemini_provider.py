@@ -2,24 +2,21 @@
 """
 ============================================================
 MODULE: ai/gemini_provider.py - PHẦN 1: KHỞI TẠO VÀ XÁC THỰC AN TOÀN
-Nhiệm vụ: Cung cấp giao tiếp chuẩn với Gemini API, chặn đứng
-và cảnh báo khi người dùng dán nhầm Token OAuth 2.0.
 ============================================================
 """
 import google.generativeai as genai
 from core.validators import SystemValidator
 
-# SỬA LỖI IMPORTERROR: Thay thế câu lệnh từ 'from ai.provider import...' 
-# sang import tương đối trực tiếp từ file provider.py nằm cùng thư mục 'ai/'.
+# SỬA LỖI IMPORTERROR: Dùng dấu chấm để import tương đối từ file cùng thư mục
 from .provider import BaseAIProvider
 
 class GeminiProvider(BaseAIProvider):
     def __init__(self, api_key: str, model_name: str = "gemini-1.5-flash"):
-        # Tự động loại bỏ mọi dấu cách thừa, dấu nháy kép hoặc ký tự xuống dòng do copy-paste lỗi
+        # Tự động loại bỏ mọi dấu cách thừa, dấu nháy kép hoặc ký tự xuống dòng do copy lỗi
         self.api_key = str(api_key).strip().replace('"', '').replace("'", "")
         self.model_name = model_name
         
-        # Bộ kiểm định chặn đứng việc nhập nhầm Token GCP OAuth (Lỗi ya29 đã gặp trước đó)
+        # Bộ kiểm định chặn đứng việc nhập nhầm Token GCP OAuth (Lỗi ya29)
         if self.api_key.startswith("ya29.") or self.api_key.startswith("AQ.") or not self.api_key.startswith("AIzaSy"):
             raise ValueError(
                 "🔑 SỰ CỐ XÁC THỰC - SAI ĐỊNH DẠNG API KEY:\n\n"
@@ -36,10 +33,10 @@ class GeminiProvider(BaseAIProvider):
 # -*- coding: utf-8 -*-
 """
 ============================================================
-MODULE: ai/gemini_provider.py - PHẦN 2: ENGINE XỬ LÝ API
+MODULE: ai/gemini_provider.py - PHẦN 2: ENGINE XỬ LÝ API (ĐÃ SỬA LỀ)
 ============================================================
 """
-# Tiếp nối cấu trúc lớp đối tượng GeminiProvider từ Phần 1
+# Đoạn mã này viết tiếp ngay bên trong lớp GeminiProvider của Phần 1 (Cùng thụt lề 4 dấu cách)
 
     def generate_json(self, prompt: str, system_prompt: str = "") -> str:
         """Hàm cốt lõi để gọi API và ép trả về định dạng chuỗi JSON sạch"""
@@ -60,7 +57,7 @@ MODULE: ai/gemini_provider.py - PHẦN 2: ENGINE XỬ LÝ API
             
         except Exception as e:
             err_msg = str(e)
-            # Bắt chính xác thông điệp lỗi xác thực 401 do Google gửi về để đưa ra cảnh báo tường minh
+            # Bắt chính xác thông điệp lỗi xác thực 401 từ Google để báo lỗi tường minh
             if "ACCESS_TOKEN_TYPE_UNSUPPORTED" in err_msg or "401 Request had invalid authentication" in err_msg:
                 raise Exception(
                     "🔑 LỖI 401 (TỪ CHỐI XÁC THỰC TỪ GOOGLE):\n"
