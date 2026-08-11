@@ -15,27 +15,20 @@ def helper_check_api_key(key: str):
         raise ValueError(
             "🔑 SỰ CỐ XÁC THỰC - SAI ĐỊNH DẠNG API KEY:\n\n"
             "Khóa bạn vừa nhập KHÔNG PHẢI là API Key chính thức của Google AI Studio.\n"
-            "Hệ thống yêu cầu chuỗi khóa chuẩn bắt đầu bằng các ký tự 'AIzaSy...'\n\n"
-            "👉 Cách khắc phục:\n"
-            "1. Truy cập trang cấp khóa miễn phí: https://google.com\n"
-            "2. Nhấn nút 'Create API Key' và chọn dự án của bạn.\n"
-            "3. Sao chép chuỗi mã mới (AIzaSy...) và dán lại vào ô Cấu hình AI."
+            "Hệ thống yêu cầu chuỗi khóa chuẩn bắt đầu bằng các ký tự 'AIzaSy...'"
         )
     return cleaned_key
 
 class GeminiProvider(BaseAIProvider):
     def __init__(self, api_key: str, model_name: str = "gemini-1.5-flash"):
-        # Gọi hàm kiểm tra độc lập ngoài rìa class để tránh lỗi lề
         self.api_key = helper_check_api_key(api_key)
         self.model_name = model_name
         genai.configure(api_key=self.api_key)
 
     def generate_json(self, prompt: str, system_prompt: str = "") -> str:
-        """Chuyển tiếp luồng xử lý xuống hàm độc lập ở Đoạn 2"""
         return execute_gemini_json(self.model_name, prompt, system_prompt)
 
     def generate_text(self, prompt: str, system_prompt: str = "") -> str:
-        """Chuyển tiếp luồng xử lý xuống hàm độc lập ở Đoạn 2"""
         return execute_gemini_text(self.model_name, prompt, system_prompt)
 # -*- coding: utf-8 -*-
 """
@@ -43,7 +36,6 @@ class GeminiProvider(BaseAIProvider):
 MODULE: ai/gemini_provider.py - PHẦN 2: HÀM THỰC THI SÁT LỀ TRÁI
 ============================================================
 """
-# Dán đoạn mã này nối tiếp ngay dưới Đoạn 1. Các hàm này KHÔNG thụt lề đầu dòng.
 
 def execute_gemini_json(model_name: str, prompt: str, system_prompt: str) -> str:
     """Hàm xử lý sinh cấu trúc dữ liệu JSON thô"""
@@ -62,12 +54,7 @@ def execute_gemini_json(model_name: str, prompt: str, system_prompt: str) -> str
     except Exception as e:
         err_msg = str(e)
         if "ACCESS_TOKEN_TYPE_UNSUPPORTED" in err_msg or "401 Request had invalid authentication" in err_msg:
-            raise Exception(
-                "🔑 LỖI 401 (TỪ CHỐI XÁC THỰC TỪ GOOGLE):\n"
-                "Google đã từ chối khóa API của bạn do cấu hình định dạng hoặc quyền hạn không đúng.\n"
-                "👉 Hệ thống cần API Key tiêu chuẩn từ Google AI Studio (bắt đầu bằng chữ 'AIza...').\n"
-                "Vui lòng tạo khóa mới tại https://google.com và cập nhật lại vào ô cấu hình."
-            )
+            raise Exception("🔑 LỖI 401: Vui lòng dùng API Key từ Google AI Studio (AIzaSy...).")
         raise Exception(f"Lỗi khi gọi Gemini API: {err_msg}")
 
 def execute_gemini_text(model_name: str, prompt: str, system_prompt: str) -> str:
