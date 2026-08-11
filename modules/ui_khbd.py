@@ -3,17 +3,35 @@
 ============================================================
 MODULE: modules/ui_khbd.py
 Nhiệm vụ: Giao diện Xây dựng KHBD chuẩn 5512
-(Bản Kỹ sư trưởng: Khôi phục giao diện Tích hợp & Chống tràn Context AI)
+(Bản Kỹ sư trưởng: Chống lỗi KeyError sập hệ thống khi khởi động)
 ============================================================
 """
 
 import streamlit as st
 import json
 import re
-from utils.nls_constants import KHUNG_NLS_GV, KHUNG_NLS_HS
-from ai.gemini_provider import GeminiProvider
-from ai.openai_provider import OpenAIProvider
-from ai.master_prompts import KHBD_SYSTEM_PROMPT
+
+# Bọc Try-Except an toàn cho toàn bộ các module nội bộ
+# Tránh việc một file cũ nào đó (như document_reader) gọi st.secrets gây KeyError sập toàn bộ App
+try:
+    from utils.nls_constants import KHUNG_NLS_GV, KHUNG_NLS_HS
+except Exception:
+    KHUNG_NLS_GV, KHUNG_NLS_HS = {}, {}
+
+try:
+    from ai.gemini_provider import GeminiProvider
+except Exception:
+    GeminiProvider = None
+
+try:
+    from ai.openai_provider import OpenAIProvider
+except Exception:
+    OpenAIProvider = None
+
+try:
+    from ai.master_prompts import KHBD_SYSTEM_PROMPT
+except Exception:
+    KHBD_SYSTEM_PROMPT = ""
 
 try:
     import pypdf
@@ -23,9 +41,11 @@ except ImportError:
     DocxDocument = None
 
 try:
-    from exporters.word_khbd import KhbdWordExporter, export_word
-except ImportError:
+    from exporters.word_khbd import KhbdWordExporter
+except Exception:
     KhbdWordExporter = None
+
+# Đã gỡ bỏ triệt để 'from utils.document_reader import DocumentProcessor' để tránh lỗi hệ thống
 
 def format_latex_for_streamlit(text):
     text = re.sub(r'\\\[(.*?)\\\]', r'$$\1$$', text, flags=re.DOTALL)
@@ -33,6 +53,7 @@ def format_latex_for_streamlit(text):
     return text
 
 def safe_extract_file(uploaded_file) -> str:
+    """Hàm trích xuất an toàn thay thế hoàn toàn DocumentProcessor cũ"""
     text_content = ""
     try:
         file_type = uploaded_file.name.split(".")[-1].lower()
@@ -206,7 +227,6 @@ def render_khbd_ui(is_ai_enabled: bool = True):
     else:
         st.session_state.extracted_ga = ""
 
-    # KHÔI PHỤC GIAO DIỆN TÍCH HỢP CHUYÊN SÂU
     with st.expander("🔧 Tích hợp chuyên sâu (Hòa nhập, AI, Số hóa)", expanded=False):
         tich_hop_ai = st.checkbox("🤖 Tích hợp hoạt động sử dụng AI trong bài học")
         tich_hop_hoa_nhap = st.checkbox("🤝 Tích hợp Dạy học hòa nhập (HS Khuyết tật)")
@@ -251,7 +271,7 @@ def render_khbd_ui(is_ai_enabled: bool = True):
         else:
             with st.spinner(f"⏳ Đang xử lý tài liệu và gọi [{model_name}]..."):
                 try:
-                    # BỘ LỌC CHỐNG TRÀN CONTEXT (Cắt tối đa 150,000 ký tự ~ 40k tokens)
+                    # Chống tràn Context (Cắt tối đa 150k ký tự)
                     sgk_safe_text = st.session_state.extracted_sgk[:150000]
                     if len(st.session_state.extracted_sgk) > 150000:
                         sgk_safe_text += "\n\n[...NỘI DUNG ĐÃ BỊ CẮT BỚT DO FILE QUÁ DÀI...]"
@@ -275,8 +295,10 @@ def render_khbd_ui(is_ai_enabled: bool = True):
                         st.error(f"❌ Không tìm thấy API Key cho {model_name} trong cấu hình.")
                     else:
                         if is_openai:
+                            if OpenAIProvider is None: raise Exception("Module OpenAIProvider không khả dụng. Kiểm tra lại thư mục 'ai'.")
                             provider = OpenAIProvider(api_key, model_name="gpt-4o" if "4o" in model_name and "Mini" not in model_name else "gpt-4o-mini")
                         else:
+                            if GeminiProvider is None: raise Exception("Module GeminiProvider không khả dụng. Kiểm tra lại thư mục 'ai'.")
                             provider = GeminiProvider(api_key, model_name="gemini-1.5-pro" if "Pro" in model_name else "gemini-1.5-flash")
                             
                         raw_json_str = provider.generate_json(prompt=prompt_hien_tai, system_prompt=KHBD_SYSTEM_PROMPT)
@@ -302,18 +324,21 @@ def render_khbd_ui(is_ai_enabled: bool = True):
 
         col_down, col_del = st.columns(2)
         with col_down:
-            try:
-                word_bytes = export_word(khbd_cache)
-                st.download_button(
-                    label="📥 TẢI FILE WORD CHUẨN 5512 (ĐẦY ĐỦ 2 TIẾT, BẢNG, TOÁN)",
-                    data=word_bytes,
-                    file_name=f"KHBD_{khbd_cache['title'].replace(' ', '_')}.docx",
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    type="primary",
-                    use_container_width=True
-                )
-            except Exception as e:
-                st.error(f"Lỗi tạo file Word: {e}")
+            if KhbdWordExporter:
+                try:
+                    word_bytes = KhbdWordExporter.export_to_word(khbd_cache)
+                    st.download_button(
+                        label="📥 TẢI FILE WORD CHUẨN 5512 (ĐẦY ĐỦ 2 TIẾT, BẢNG, TOÁN)",
+                        data=word_bytes,
+                        file_name=f"KHBD_{khbd_cache['title'].replace(' ', '_')}.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        type="primary",
+                        use_container_width=True
+                    )
+                except Exception as e:
+                    st.error(f"Lỗi tạo file Word: {e}")
+            else:
+                st.error("Tính năng xuất Word đang tạm thời không khả dụng.")
                 
         with col_del:
             if st.button("🗑️ Xóa kết quả làm lại", use_container_width=True):
