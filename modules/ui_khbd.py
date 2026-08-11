@@ -3,7 +3,7 @@
 ============================================================
 MODULE: modules/ui_khbd.py
 Nhiệm vụ: Giao diện Xây dựng KHBD chuẩn 5512
-(Bản Kỹ sư trưởng: Sửa dứt điểm lỗi mất UI & NoneType)
+(Bản Kỹ sư trưởng: Cắt dữ liệu động (Dynamic Context) chống cháy API)
 ============================================================
 """
 
@@ -16,7 +16,6 @@ try:
 except ImportError:
     KHUNG_NLS_GV, KHUNG_NLS_HS = {}, {}
 
-# Sử dụng Import tuyệt đối - KHÔNG DÙNG TRY-EXCEPT để bắt buộc hiển thị lỗi nếu có
 from ai.gemini_provider import GeminiProvider
 from ai.openai_provider import OpenAIProvider
 from ai.master_prompts import KHBD_SYSTEM_PROMPT
@@ -178,7 +177,7 @@ def render_khbd_ui(is_ai_enabled: bool = True):
     st.subheader("🎛️ Thông tin bài dạy")
     col1, col2, col3 = st.columns([1.5, 1.5, 1])
     with col1: khoi_lop = st.selectbox("Khối lớp", ["Lớp 6", "Lớp 7", "Lớp 8", "Lớp 9", "Lớp 10", "Lớp 11", "Lớp 12"], index=3)
-    with col2: mon_hoc = st.selectbox("Môn học", ["Toán", "Ngữ văn", "Khoa học tự nhiên", "Tin học"], index=0)
+    with col2: mon_hoc = st.selectbox("Môn học", ["Toán", "Ngữ văn", "Khoa học tự nhiên", "Tin học", "Khác"], index=0)
     with col3: so_tiet = st.number_input("Số tiết", min_value=1, max_value=15, value=2)
     ten_bai = st.text_input("Tên bài học", placeholder="Nhập chính xác tên bài (VD: Căn bậc hai...)")
 
@@ -212,7 +211,6 @@ def render_khbd_ui(is_ai_enabled: bool = True):
     else:
         st.session_state.extracted_ga = ""
 
-    # SỬA LỖI UI: KHÓA CHẶT BẰNG THUỘC TÍNH KEY
     with st.expander("🔧 Tích hợp chuyên sâu (Hòa nhập, AI, Số hóa)", expanded=False):
         tich_hop_ai = st.checkbox("🤖 Tích hợp hoạt động sử dụng AI trong bài học", key="chk_ai")
         tich_hop_hoa_nhap = st.checkbox("🤝 Tích hợp Dạy học hòa nhập (HS Khuyết tật)", key="chk_hn")
@@ -261,12 +259,25 @@ def render_khbd_ui(is_ai_enabled: bool = True):
         else:
             with st.spinner(f"⏳ Đang xử lý tài liệu và gọi [{model_name}]..."):
                 try:
-                    # BỘ LỌC CHỐNG TRÀN CONTEXT (Cắt tối đa 150,000 ký tự)
-                    sgk_safe_text = st.session_state.extracted_sgk[:150000]
-                    if len(st.session_state.extracted_sgk) > 150000:
-                        sgk_safe_text += "\n\n[...NỘI DUNG ĐÃ BỊ CẮT BỚT DO TÀI LIỆU QUÁ DÀI ĐỂ TRÁNH LỖI...]"
+                    # BỘ LỌC CẮT DỮ LIỆU ĐỘNG THEO MÔ HÌNH (DYNAMIC TRUNCATION)
+                    is_openai = "GPT" in model_name
                     
-                    ga_safe_text = st.session_state.extracted_ga[:50000]
+                    if is_openai:
+                        # OpenAI Tier 1 chỉ chịu được 30,000 TPM -> Cắt siêu ngắn an toàn ở mức 20,000 ký tự (~7000 tokens)
+                        sgk_limit = 20000
+                        ga_limit = 5000
+                    else:
+                        # Gemini chịu được 1M - 2M tokens -> Để giới hạn thoải mái hơn (200,000 ký tự)
+                        sgk_limit = 200000
+                        ga_limit = 50000
+
+                    sgk_safe_text = st.session_state.extracted_sgk[:sgk_limit]
+                    if len(st.session_state.extracted_sgk) > sgk_limit:
+                        sgk_safe_text += "\n\n[...NỘI DUNG SGK BỊ CẮT BỚT ĐỂ ĐẢM BẢO GIỚI HẠN AN TOÀN CỦA API...]"
+                    
+                    ga_safe_text = st.session_state.extracted_ga[:ga_limit]
+                    if len(st.session_state.extracted_ga) > ga_limit:
+                        ga_safe_text += "\n\n[...NỘI DUNG GA BỊ CẮT BỚT ĐỂ ĐẢM BẢO GIỚI HẠN AN TOÀN CỦA API...]"
 
                     yeu_cau = f"- Soạn KHBD chuẩn 5512 CỰC KỲ CHI TIẾT với thời lượng chính xác {so_tiet} tiết cho môn {mon_hoc} {khoi_lop}, bài: {ten_bai}.\n"
                     yeu_cau += f"- Bắt buộc phân rã chi tiết rạch ròi theo từng tiết học.\n"
@@ -278,11 +289,10 @@ def render_khbd_ui(is_ai_enabled: bool = True):
                     
                     prompt_hien_tai = f"{yeu_cau}\n\nSGK / TÀI LIỆU NGUỒN:\n{sgk_safe_text}\n\nGIÁO ÁN CŨ:\n{ga_safe_text}"
 
-                    is_openai = "GPT" in model_name
                     api_key = st.secrets.get("OPENAI_API_KEY" if is_openai else "GEMINI_API_KEY", "")
                     
                     if not api_key:
-                        st.error(f"❌ Không tìm thấy API Key cho {model_name} trong cấu hình.")
+                        st.error(f"❌ Không tìm thấy API Key cho {model_name} trong cấu hình (st.secrets).")
                     else:
                         if is_openai:
                             provider = OpenAIProvider(api_key, model_name="gpt-4o" if "4o" in model_name and "Mini" not in model_name else "gpt-4o-mini")
