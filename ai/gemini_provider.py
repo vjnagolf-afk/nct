@@ -3,16 +3,14 @@
 ============================================================
 MODULE: ai/gemini_provider.py
 Nhiệm vụ: Cung cấp giao tiếp chuẩn với Gemini API.
-(Bản Kỹ sư trưởng: Cấu trúc hàm sát lề trái, dọn dẹp ký tự ẩn)
 ============================================================
 """
 
 import google.generativeai as genai
 from core.validators import SystemValidator
-from .provider import BaseAIProvider
+from ai.provider import BaseAIProvider
 
 def helper_check_api_key(key: str) -> str:
-    """Hàm độc lập kiểm tra định dạng khóa an toàn"""
     cleaned_key = str(key).strip().replace('"', '').replace("'", "")
     if cleaned_key.startswith("ya29.") or cleaned_key.startswith("AQ.") or not cleaned_key.startswith("AIzaSy"):
         raise ValueError(
@@ -22,41 +20,6 @@ def helper_check_api_key(key: str) -> str:
         )
     return cleaned_key
 
-
-def execute_gemini_json(model_name: str, prompt: str, system_prompt: str) -> str:
-    """Hàm xử lý sinh cấu trúc dữ liệu JSON thô"""
-    try:
-        generation_config = {
-            "temperature": 0.2,
-            "response_mime_type": "application/json"
-        }
-        model = genai.GenerativeModel(
-            model_name=model_name,
-            system_instruction=system_prompt,
-            generation_config=generation_config
-        )
-        response = model.generate_content(prompt)
-        return SystemValidator.clean_and_validate_json(response.text)
-    except Exception as e:
-        err_msg = str(e)
-        if "ACCESS_TOKEN_TYPE_UNSUPPORTED" in err_msg or "401 Request had invalid authentication" in err_msg:
-            raise Exception("🔑 LỖI 401: Vui lòng dùng API Key từ Google AI Studio (AIzaSy...).")
-        raise Exception(f"Lỗi khi gọi Gemini API: {err_msg}")
-
-
-def execute_gemini_text(model_name: str, prompt: str, system_prompt: str) -> str:
-    """Hàm xử lý sinh văn bản tự do ngoài cấu trúc"""
-    try:
-        model = genai.GenerativeModel(
-            model_name=model_name,
-            system_instruction=system_prompt
-        )
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        raise Exception(f"Lỗi khi gọi Gemini API: {str(e)}")
-
-
 class GeminiProvider(BaseAIProvider):
     def __init__(self, api_key: str, model_name: str = "gemini-1.5-flash"):
         self.api_key = helper_check_api_key(api_key)
@@ -64,7 +27,31 @@ class GeminiProvider(BaseAIProvider):
         genai.configure(api_key=self.api_key)
 
     def generate_json(self, prompt: str, system_prompt: str = "") -> str:
-        return execute_gemini_json(self.model_name, prompt, system_prompt)
+        try:
+            generation_config = {
+                "temperature": 0.2,
+                "response_mime_type": "application/json"
+            }
+            model = genai.GenerativeModel(
+                model_name=self.model_name,
+                system_instruction=system_prompt,
+                generation_config=generation_config
+            )
+            response = model.generate_content(prompt)
+            return SystemValidator.clean_and_validate_json(response.text)
+        except Exception as e:
+            err_msg = str(e)
+            if "ACCESS_TOKEN_TYPE_UNSUPPORTED" in err_msg or "401 Request had invalid authentication" in err_msg:
+                raise Exception("🔑 LỖI 401: Vui lòng dùng API Key từ Google AI Studio (AIzaSy...).")
+            raise Exception(f"Lỗi khi gọi Gemini API: {err_msg}")
 
     def generate_text(self, prompt: str, system_prompt: str = "") -> str:
-        return execute_gemini_text(self.model_name, prompt, system_prompt)
+        try:
+            model = genai.GenerativeModel(
+                model_name=self.model_name,
+                system_instruction=system_prompt
+            )
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            raise Exception(f"Lỗi khi gọi Gemini API: {str(e)}")
