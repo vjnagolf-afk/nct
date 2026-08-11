@@ -1,7 +1,6 @@
 from openai import OpenAI
-from ai.provider import BaseAIProvider
 from core.validators import SystemValidator
-
+from .provider import BaseAIProvider
 class OpenRouterProvider(BaseAIProvider):
     def __init__(self, api_key: str, model_name: str = "google/gemini-2.5-flash"):
         """Khởi tạo kết nối OpenRouter sử dụng OpenAI SDK"""
